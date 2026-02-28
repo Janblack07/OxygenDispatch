@@ -20,7 +20,7 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 
 # Build front (Vite)
-RUN npm ci && npm run build
+RUN npm ci && npm run dev
 
 # Permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache

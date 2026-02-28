@@ -19,7 +19,7 @@ class AdminUserSeeder extends Seeder
                 'role' => AppRole::ADMINISTRADOR->value,
                 'is_active' => true,
             ],
-            ['email' => 'jandryjcob20@gmail.com'],
+            ['email' => 'jandryjacob20@gmail.com'],
             [
                 'name' => 'PROGRAMADOR',
                 'password' => Hash::make('Jandryjacob123.'),
