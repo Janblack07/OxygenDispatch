@@ -1,33 +1,57 @@
-# ---- Base PHP ----
-FROM php:8.2-cli AS app
+# ---------- 1) Frontend build (Vite) ----------
+FROM node:20-alpine AS node_build
+WORKDIR /app
 
-# System deps + Node (para Vite)
-RUN apt-get update && apt-get install -y \
-    git unzip libzip-dev libpng-dev libonig-dev libxml2-dev libicu-dev \
-    nodejs npm \
- && docker-php-ext-install pdo pdo_mysql zip intl \
- && rm -rf /var/lib/apt/lists/*
+# Instala deps JS y compila assets
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+
+# ---------- 2) PHP runtime ----------
+FROM php:8.3-cli-alpine AS app
+
+WORKDIR /app
+
+# Dependencias del sistema (ajusta si usas otras extensiones)
+RUN apk add --no-cache \
+    bash \
+    git \
+    unzip \
+    icu-dev \
+    oniguruma-dev \
+    libzip-dev \
+    mysql-client \
+ && docker-php-ext-install \
+    pdo \
+    pdo_mysql \
+    intl \
+    mbstring \
+    zip
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www/html
-
-# Copy code
+# Copiamos el proyecto
 COPY . .
 
-# Install PHP deps (prod)
-RUN composer install --no-dev --optimize-autoloader
+# Copiamos los assets compilados por Vite (public/build)
+COPY --from=node_build /app/public/build /app/public/build
 
-# Build front assets (Vite)
-RUN npm ci && npm run build
+# Instala dependencias PHP en modo producción
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Permissions (Laravel needs these)
-RUN chmod -R 775 storage bootstrap/cache || true
+# Permisos típicos de Laravel
+RUN mkdir -p storage bootstrap/cache \
+ && chmod -R 775 storage bootstrap/cache
 
-# Start script
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+# Script de arranque
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
-EXPOSE 10000
-CMD ["/start.sh"]
+# Railway expone el puerto por $PORT
+EXPOSE 8080
+
+CMD ["/app/start.sh"]

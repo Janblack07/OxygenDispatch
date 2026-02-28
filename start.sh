@@ -1,12 +1,21 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -e
 
-composer install
-npm install --production
-php artisan optimize
-php artisan storage:link
-php artisan migrate:fresh --seed
-# Ejecutar servidor web en segundo plano
-php -S 0.0.0.0:8080 -t public &
+echo "==> App starting..."
 
-# Ejecutar worker en primer plano
-php artisan queue:work
+# Si tu APP_KEY no existiera, podrías generarla (pero tú ya la tienes en env):
+# php artisan key:generate --force || true
+
+echo "==> Running migrations..."
+php artisan migrate --force
+
+echo "==> Running seeders..."
+php artisan db:seed --force
+
+echo "==> Caching config/routes/views..."
+php artisan config:cache || true
+php artisan route:cache || true
+php artisan view:cache || true
+
+echo "==> Serving on 0.0.0.0:${PORT:-8080}"
+php artisan serve --host=0.0.0.0 --port="${PORT:-8080}"
