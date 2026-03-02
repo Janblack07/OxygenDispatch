@@ -1,6 +1,5 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities;
 
 @layer components {
   .form-input-sm {
@@ -17,3 +16,5 @@
     @apply block text-[11px] font-medium text-gray-600;
   }
 }
+
+@tailwind utilities;
