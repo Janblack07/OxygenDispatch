@@ -1,4 +1,10 @@
 <x-app-layout>
+    @php
+        $inputSm = 'mt-1 block w-full rounded-md border-gray-300 text-sm py-1.5 px-3 leading-5 focus:border-indigo-500 focus:ring-indigo-500';
+        $selectSm = $inputSm;
+        $labelSm = 'block text-[11px] font-medium text-gray-600';
+    @endphp
+
     <x-slot name="header">
         <div class="flex items-start justify-between gap-4">
             <div>
@@ -38,20 +44,20 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="form-label-sm">Número de lote</label>
-                                <input name="batch_number" value="{{ old('batch_number') }}" class="form-input-sm" required>
+                                <label class="{{ $labelSm }}">Número de lote</label>
+                                <input name="batch_number" value="{{ old('batch_number') }}" class="{{ $inputSm }}" required>
                                 @error('batch_number') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                             </div>
 
                             <div>
-                                <label class="form-label-sm">Fecha/hora recibido</label>
-                                <input type="datetime-local" name="received_at" value="{{ old('received_at') }}" class="form-input-sm" required>
+                                <label class="{{ $labelSm }}">Fecha/hora recibido</label>
+                                <input type="datetime-local" name="received_at" value="{{ old('received_at') }}" class="{{ $inputSm }}" required>
                                 @error('received_at') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                             </div>
 
                             <div>
-                                <label class="form-label-sm">Gas (opcional)</label>
-                                <select name="gas_type_id" class="form-select-sm">
+                                <label class="{{ $labelSm }}">Gas (opcional)</label>
+                                <select name="gas_type_id" class="{{ $selectSm }}">
                                     <option value="">— No aplicar —</option>
                                     @foreach($gasTypes as $g)
                                         <option value="{{ $g->id }}" @selected(old('gas_type_id') == $g->id)>{{ $g->name }}</option>
@@ -64,8 +70,8 @@
                             </div>
 
                             <div>
-                                <label class="form-label-sm">Capacidad (opcional)</label>
-                                <select name="capacity_id" class="form-select-sm">
+                                <label class="{{ $labelSm }}">Capacidad (opcional)</label>
+                                <select name="capacity_id" class="{{ $selectSm }}">
                                     <option value="">— No aplicar —</option>
                                     @foreach($capacities as $c)
                                         <option value="{{ $c->id }}" @selected(old('capacity_id') == $c->id)>{{ $c->name }}</option>
@@ -78,21 +84,21 @@
                             </div>
 
                             <div>
-                                <label class="form-label-sm">Documento</label>
-                                <input name="document_number" value="{{ old('document_number') }}" class="form-input-sm">
+                                <label class="{{ $labelSm }}">Documento</label>
+                                <input name="document_number" value="{{ old('document_number') }}" class="{{ $inputSm }}">
                                 @error('document_number') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                             </div>
 
                             <div>
-                                <label class="form-label-sm">Proveedor</label>
-                                <input name="supplier_name" value="{{ old('supplier_name') }}" class="form-input-sm">
+                                <label class="{{ $labelSm }}">Proveedor</label>
+                                <input name="supplier_name" value="{{ old('supplier_name') }}" class="{{ $inputSm }}">
                                 @error('supplier_name') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                             </div>
                         </div>
 
                         <div>
-                            <label class="form-label-sm">Notas</label>
-                            <textarea name="notes" rows="3" class="form-input-sm">{{ old('notes') }}</textarea>
+                            <label class="{{ $labelSm }}">Notas</label>
+                            <textarea name="notes" rows="3" class="{{ $inputSm }}">{{ old('notes') }}</textarea>
                             @error('notes') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                         </div>
 

@@ -47,5 +47,8 @@ class TankUnit extends Model
     public function warehouseArea() { return $this->belongsTo(WarehouseArea::class); }
     public function technicalStatus() { return $this->belongsTo(TechnicalStatus::class); }
 
-    public function movements() { return $this->hasMany(InventoryMovement::class); }
+    public function movements()
+{
+    return $this->hasMany(InventoryMovement::class, 'tank_unit_id')->latest();
+}
 }

@@ -1,4 +1,10 @@
 <x-app-layout>
+    @php
+        $inputSm = 'mt-1 block w-full rounded-md border-gray-300 text-sm py-1.5 px-3 leading-5 focus:border-indigo-500 focus:ring-indigo-500';
+        $selectSm = $inputSm;
+        $labelSm = 'block text-[11px] font-medium text-gray-600';
+    @endphp
+
     <x-slot name="header">
         <div class="flex items-start justify-between gap-4">
             <div>
@@ -11,7 +17,7 @@
             </div>
 
             <a href="{{ route('batches.create') }}"
-               class="inline-flex items-center gap-2 px-3 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+               class="inline-flex items-center gap-2 px-3 py-2 bg-violet-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2">
                 <span class="text-base leading-none">+</span>
                 <span>Nuevo</span>
             </a>
@@ -21,22 +27,22 @@
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-4">
 
-            {{-- Filtros (pueden quedarse, pero recuerda que gas/capacidad en lote son referenciales) --}}
+            {{-- Filtros --}}
             <div class="bg-white shadow-sm sm:rounded-lg">
                 <div class="p-4">
                     <form method="GET" action="{{ route('batches.index') }}"
                           class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
 
                         <div class="md:col-span-5">
-                            <label class="form-label-sm">Buscar</label>
+                            <label class="{{ $labelSm }}">Buscar</label>
                             <input name="q" value="{{ request('q') }}"
-                                   class="form-input-sm"
+                                   class="{{ $inputSm }}"
                                    placeholder="Lote o documento (LOT-2026-001 / DOC-123)">
                         </div>
 
                         <div class="md:col-span-3">
-                            <label class="form-label-sm">Gas (referencial)</label>
-                            <select name="gas_type_id" class="form-select-sm">
+                            <label class="{{ $labelSm }}">Gas (referencial)</label>
+                            <select name="gas_type_id" class="{{ $selectSm }}">
                                 <option value="">Todos</option>
                                 @foreach($gasTypes ?? [] as $g)
                                     <option value="{{ $g->id }}" @selected(request('gas_type_id') == $g->id)>{{ $g->name }}</option>
@@ -45,8 +51,8 @@
                         </div>
 
                         <div class="md:col-span-3">
-                            <label class="form-label-sm">Capacidad (referencial)</label>
-                            <select name="capacity_id" class="form-select-sm">
+                            <label class="{{ $labelSm }}">Capacidad (referencial)</label>
+                            <select name="capacity_id" class="{{ $selectSm }}">
                                 <option value="">Todas</option>
                                 @foreach($capacities ?? [] as $c)
                                     <option value="{{ $c->id }}" @selected(request('capacity_id') == $c->id)>{{ $c->name }}</option>
@@ -131,7 +137,6 @@
                                                class="inline-flex items-center px-2.5 py-1 text-[11px] font-semibold rounded-md bg-indigo-50 text-indigo-700 hover:bg-indigo-100">
                                                 Ver
                                             </a>
-
                                         </td>
                                     </tr>
                                 @empty

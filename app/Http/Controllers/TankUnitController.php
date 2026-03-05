@@ -46,7 +46,7 @@ class TankUnitController extends Controller
             'tank' => $tank,
             'areas' => WarehouseArea::orderBy('name')->get(),
             'techStatuses' => TechnicalStatus::orderBy('name')->get(),
-            'movements' => $tank->inventoryMovements()->latest()->take(50)->get(),
+            'movements' => $tank->movements()->latest()->take(50)->get(),
         ]);
     }
 

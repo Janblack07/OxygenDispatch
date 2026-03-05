@@ -1,4 +1,10 @@
 <x-app-layout>
+    @php
+        $inputSm = 'mt-1 block w-full rounded-md border-gray-300 text-sm py-1.5 px-3 leading-5 focus:border-indigo-500 focus:ring-indigo-500';
+        $selectSm = $inputSm;
+        $labelSm = 'block text-[11px] font-medium text-gray-600';
+    @endphp
+
     <x-slot name="header">
         <div class="flex items-start justify-between gap-4">
             <div>
@@ -22,20 +28,20 @@
                           class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
 
                         <div class="md:col-span-3">
-                            <label class="form-label-sm">Serial</label>
+                            <label class="{{ $labelSm }}">Serial</label>
                             <input name="serial" value="{{ request('serial') }}"
-                                   class="form-input-sm" placeholder="OXI-000001">
+                                   class="{{ $inputSm }}" placeholder="OXI-000001">
                         </div>
 
                         <div class="md:col-span-2">
-                            <label class="form-label-sm">Lote (ID)</label>
+                            <label class="{{ $labelSm }}">Lote (ID)</label>
                             <input name="batch_id" value="{{ request('batch_id') }}"
-                                   class="form-input-sm" placeholder="Ej: 5">
+                                   class="{{ $inputSm }}" placeholder="Ej: 5">
                         </div>
 
                         <div class="md:col-span-2">
-                            <label class="form-label-sm">Gas</label>
-                            <select name="gas_type_id" class="form-select-sm">
+                            <label class="{{ $labelSm }}">Gas</label>
+                            <select name="gas_type_id" class="{{ $selectSm }}">
                                 <option value="">Todos</option>
                                 @foreach($gasTypes as $g)
                                     <option value="{{ $g->id }}" @selected(request('gas_type_id') == $g->id)>{{ $g->name }}</option>
@@ -44,8 +50,8 @@
                         </div>
 
                         <div class="md:col-span-2">
-                            <label class="form-label-sm">Capacidad</label>
-                            <select name="capacity_id" class="form-select-sm">
+                            <label class="{{ $labelSm }}">Capacidad</label>
+                            <select name="capacity_id" class="{{ $selectSm }}">
                                 <option value="">Todas</option>
                                 @foreach($capacities as $c)
                                     <option value="{{ $c->id }}" @selected(request('capacity_id') == $c->id)>{{ $c->name }}</option>
@@ -54,8 +60,8 @@
                         </div>
 
                         <div class="md:col-span-3">
-                            <label class="form-label-sm">Área</label>
-                            <select name="warehouse_area_id" class="form-select-sm">
+                            <label class="{{ $labelSm }}">Área</label>
+                            <select name="warehouse_area_id" class="{{ $selectSm }}">
                                 <option value="">Todas</option>
                                 @foreach($areas as $a)
                                     <option value="{{ $a->id }}" @selected(request('warehouse_area_id') == $a->id)>{{ $a->name }}</option>
@@ -64,8 +70,8 @@
                         </div>
 
                         <div class="md:col-span-3">
-                            <label class="form-label-sm">Estado técnico</label>
-                            <select name="technical_status_id" class="form-select-sm">
+                            <label class="{{ $labelSm }}">Estado técnico</label>
+                            <select name="technical_status_id" class="{{ $selectSm }}">
                                 <option value="">Todos</option>
                                 @foreach($techStatuses as $t)
                                     <option value="{{ $t->id }}" @selected(request('technical_status_id') == $t->id)>{{ $t->name }}</option>
@@ -74,13 +80,13 @@
                         </div>
 
                         <div class="md:col-span-2">
-                            <label class="form-label-sm">Estado</label>
-                            <select name="status" class="form-select-sm">
+                            <label class="{{ $labelSm }}">Estado</label>
+                            <select name="status" class="{{ $selectSm }}">
                                 <option value="">Todos</option>
                                 {{-- Si tu status es enum/byte, aquí van los valores --}}
-                                <option value="1" @selected(request('status')==='1')>Disponible</option>
-                                <option value="2" @selected(request('status')==='2')>Despachado</option>
-                                <option value="3" @selected(request('status')==='3')>Baja</option>
+                                <option value="1" @selected(request('status') === '1')>Disponible</option>
+                                <option value="2" @selected(request('status') === '2')>Despachado</option>
+                                <option value="3" @selected(request('status') === '3')>Baja</option>
                             </select>
                             <p class="mt-1 text-[11px] text-gray-400">Ajusta labels/valores a tu enum real.</p>
                         </div>
@@ -125,7 +131,7 @@
                                     <th class="py-2 pr-4">Área</th>
                                     <th class="py-2 pr-4">Estado técnico</th>
                                     <th class="py-2 pr-4">Estado</th>
-                                    <th class="py-2 pr-2 text-right">Acción</th>
+
                                 </tr>
                             </thead>
 
@@ -143,13 +149,6 @@
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] bg-gray-100 text-gray-700">
                                                 {{ $tank->status?->label() ?? $tank->status }}
                                             </span>
-                                        </td>
-
-                                        <td class="py-3 pr-2 text-right">
-                                            <a href="{{ route('tanks.show', $tank) }}"
-                                               class="inline-flex items-center px-2.5 py-1 text-[11px] font-semibold rounded-md bg-indigo-50 text-indigo-700 hover:bg-indigo-100">
-                                                Ver
-                                            </a>
                                         </td>
                                     </tr>
                                 @empty

@@ -1,4 +1,10 @@
 <x-app-layout>
+    @php
+        $inputSm = 'mt-1 block w-full rounded-md border-gray-300 text-sm py-1.5 px-3 leading-5 focus:border-indigo-500 focus:ring-indigo-500';
+        $selectSm = $inputSm;
+        $labelSm = 'block text-[11px] font-medium text-gray-600';
+    @endphp
+
     <x-slot name="header">
         <div class="flex items-center justify-between gap-3">
             <div>
@@ -11,7 +17,6 @@
             </div>
 
             <div class="flex gap-2">
-
                 <a href="{{ route('batches.index') }}"
                    class="inline-flex items-center px-3 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500">
                     Volver
@@ -67,8 +72,8 @@
                         @csrf
 
                         <div class="md:col-span-4">
-                            <label class="form-label-sm">Producto</label>
-                            <select name="product_id" class="form-select-sm" required>
+                            <label class="{{ $labelSm }}">Producto</label>
+                            <select name="product_id" class="{{ $selectSm }}" required>
                                 <option value="">-- Seleccione --</option>
                                 @foreach($products as $p)
                                     <option value="{{ $p->id }}" @selected(old('product_id') == $p->id)>
@@ -80,16 +85,16 @@
                         </div>
 
                         <div class="md:col-span-2">
-                            <label class="form-label-sm">Cantidad</label>
+                            <label class="{{ $labelSm }}">Cantidad</label>
                             <input type="number" name="quantity" min="1" max="5000"
                                    value="{{ old('quantity', 10) }}"
-                                   class="form-input-sm" required>
+                                   class="{{ $inputSm }}" required>
                             @error('quantity') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                         </div>
 
                         <div class="md:col-span-2">
-                            <label class="form-label-sm">Área</label>
-                            <select name="warehouse_area_id" class="form-select-sm" required>
+                            <label class="{{ $labelSm }}">Área</label>
+                            <select name="warehouse_area_id" class="{{ $selectSm }}" required>
                                 <option value="">-- Seleccione --</option>
                                 @foreach($areas as $a)
                                     <option value="{{ $a->id }}" @selected(old('warehouse_area_id') == $a->id)>{{ $a->name }}</option>
@@ -99,8 +104,8 @@
                         </div>
 
                         <div class="md:col-span-2">
-                            <label class="form-label-sm">Estado técnico</label>
-                            <select name="technical_status_id" class="form-select-sm" required>
+                            <label class="{{ $labelSm }}">Estado técnico</label>
+                            <select name="technical_status_id" class="{{ $selectSm }}" required>
                                 <option value="">-- Seleccione --</option>
                                 @foreach($techStatuses as $t)
                                     <option value="{{ $t->id }}" @selected(old('technical_status_id') == $t->id)>{{ $t->name }}</option>
@@ -110,9 +115,9 @@
                         </div>
 
                         <div class="md:col-span-2">
-                            <label class="form-label-sm">Prefijo serial</label>
+                            <label class="{{ $labelSm }}">Prefijo serial</label>
                             <input name="serial_prefix" value="{{ old('serial_prefix', 'OXI') }}"
-                                   class="form-input-sm" placeholder="OXI">
+                                   class="{{ $inputSm }}" placeholder="OXI">
                             @error('serial_prefix') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                         </div>
 
@@ -155,7 +160,6 @@
                                     <th class="py-2 pr-4">Registro sanitario</th>
                                     <th class="py-2 pr-4">Área</th>
                                     <th class="py-2 pr-4">Estado técnico</th>
-                                    <th class="py-2 pr-2 text-right">Acción</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y">
@@ -182,13 +186,6 @@
 
                                         <td class="py-3 pr-4 text-gray-700">{{ $tank->warehouseArea?->name ?? '—' }}</td>
                                         <td class="py-3 pr-4 text-gray-700">{{ $tank->technicalStatus?->name ?? '—' }}</td>
-
-                                        <td class="py-3 pr-2 text-right">
-                                            <a href="{{ route('tanks.show', $tank) }}"
-                                               class="inline-flex items-center px-2.5 py-1 text-[11px] font-semibold rounded-md bg-indigo-50 text-indigo-700 hover:bg-indigo-100">
-                                                Ver
-                                            </a>
-                                        </td>
                                     </tr>
                                 @empty
                                     <tr>

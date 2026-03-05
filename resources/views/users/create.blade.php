@@ -1,4 +1,10 @@
 <x-app-layout>
+    @php
+        $inputSm  = 'mt-1 block w-full rounded-md border-gray-300 text-sm py-2 px-3 leading-5 focus:border-indigo-500 focus:ring-indigo-500';
+        $selectSm = $inputSm;
+        $labelSm  = 'block text-[11px] font-medium text-gray-600';
+    @endphp
+
     <x-slot name="header">
         <div class="flex items-start justify-between gap-4">
             <div>
@@ -34,19 +40,21 @@
                         @csrf
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                             <div>
-                                <label class="form-label-sm">Nombre *</label>
-                                <input name="name" value="{{ old('name') }}" class="form-input-sm" required>
+                                <label class="{{ $labelSm }}">Nombre *</label>
+                                <input name="name" value="{{ old('name') }}" class="{{ $inputSm }}" required>
                             </div>
 
                             <div>
-                                <label class="form-label-sm">Email *</label>
-                                <input type="email" name="email" value="{{ old('email') }}" class="form-input-sm" required>
+                                <label class="{{ $labelSm }}">Email *</label>
+                                <input type="email" name="email" value="{{ old('email') }}" class="{{ $inputSm }}" required>
                             </div>
 
                             <div>
-                                <label class="form-label-sm">Rol *</label>
-                                <select name="role" class="form-select-sm" required>
+                                <label class="{{ $labelSm }}">Rol *</label>
+                                <select name="role" class="{{ $selectSm }}" required>
+                                    <option value="" disabled @selected(old('role')===null)>— Selecciona —</option>
                                     @foreach($roles as $r)
                                         <option value="{{ $r->value }}" @selected(old('role')==$r->value)>
                                             {{ $r->value }}
@@ -56,9 +64,15 @@
                             </div>
 
                             <div>
-                                <label class="form-label-sm">Password (opcional)</label>
-                                <input type="text" name="password" value="{{ old('password') }}" class="form-input-sm" placeholder="Si vacío, se genera automáticamente">
+                                <label class="{{ $labelSm }}">Password (opcional)</label>
+                                <input type="text" name="password" value="{{ old('password') }}"
+                                       class="{{ $inputSm }}"
+                                       placeholder="Si vacío, se genera automáticamente">
+                                <p class="mt-1 text-[11px] text-gray-400">
+                                    Si no ingresas una contraseña, se generará automáticamente.
+                                </p>
                             </div>
+
                         </div>
 
                         <div class="flex justify-end gap-2 pt-2">
