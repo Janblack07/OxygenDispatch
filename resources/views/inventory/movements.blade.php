@@ -86,73 +86,115 @@
                     </div>
 
                     <div class="mt-3 overflow-x-auto">
-                        <table class="min-w-full text-sm">
-                            <thead class="text-left text-xs text-gray-500 border-b">
-                                <tr>
-                                    <th class="py-2 pr-4">Fecha</th>
-                                    <th class="py-2 pr-4">Tipo</th>
-                                    <th class="py-2 pr-4">Tanque</th>
-                                    <th class="py-2 pr-4">Desde</th>
-                                    <th class="py-2 pr-4">Hacia</th>
-                                    <th class="py-2 pr-4">Lote</th>
-                                    <th class="py-2 pr-4">Documento</th>
-                                    <th class="py-2 pr-4">Usuario</th>
-                                    <th class="py-2 pr-2">Notas</th>
+                    <table class="min-w-full text-sm">
+                        <thead class="text-left text-xs text-gray-500 border-b">
+                            <tr>
+                                <th class="py-2 pr-4">Fecha</th>
+                                <th class="py-2 pr-4">Tipo</th>
+                                <th class="py-2 pr-4">Tanque</th>
+                                <th class="py-2 pr-4">Lote</th>
+                                <th class="py-2 pr-4">Desde</th>
+                                <th class="py-2 pr-4">Hacia</th>
+                                <th class="py-2 pr-4">Documento</th>
+                                <th class="py-2 pr-4">Usuario</th>
+                                <th class="py-2 pr-2">Notas</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="divide-y">
+                            @forelse($movements as $m)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-3 pr-4 text-gray-600 whitespace-nowrap">
+                                        {{ optional($m->occurred_at)->format('Y-m-d') }}
+                                        <div class="text-[11px] text-gray-500">
+                                            {{ optional($m->occurred_at)->format('H:i') }}
+                                        </div>
+                                    </td>
+
+                                    <td class="py-3 pr-4">
+                                        @php
+                                            $typeClasses = match($m->type?->value) {
+                                                1 => 'bg-green-100 text-green-700',
+                                                2 => 'bg-blue-100 text-blue-700',
+                                                3 => 'bg-orange-100 text-orange-700',
+                                                4 => 'bg-purple-100 text-purple-700',
+                                                default => 'bg-gray-100 text-gray-700',
+                                            };
+                                        @endphp
+
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold whitespace-nowrap {{ $typeClasses }}">
+                                            {{ $m->type?->label() ?? '—' }}
+                                        </span>
+                                    </td>
+
+                                    <td class="py-3 pr-4 font-medium text-gray-800 whitespace-nowrap">
+                                        {{ $m->tankUnit?->serial ?? $m->tank_unit_id }}
+                                    </td>
+
+                                    <td class="py-3 pr-4 text-gray-600 whitespace-nowrap">
+                                        {{ $m->batch?->batch_number ?? '—' }}
+                                    </td>
+
+                                    <td class="py-3 pr-4 text-gray-600 whitespace-nowrap">
+                                        @switch($m->type?->value)
+                                            @case(1)
+                                                Proveedor / Recepción
+                                                @break
+                                            @case(2)
+                                                {{ $m->fromArea?->name ?? '—' }}
+                                                @break
+                                            @case(3)
+                                                {{ $m->fromArea?->name ?? '—' }}
+                                                @break
+                                            @case(4)
+                                                —
+                                                @break
+                                            @default
+                                                {{ $m->fromArea?->name ?? '—' }}
+                                        @endswitch
+                                    </td>
+
+                                    <td class="py-3 pr-4 text-gray-600 whitespace-nowrap">
+                                        @switch($m->type?->value)
+                                            @case(1)
+                                                {{ $m->toArea?->name ?? '—' }}
+                                                @break
+                                            @case(2)
+                                                {{ $m->toArea?->name ?? '—' }}
+                                                @break
+                                            @case(3)
+                                                Salida
+                                                @break
+                                            @case(4)
+                                                —
+                                                @break
+                                            @default
+                                                {{ $m->toArea?->name ?? '—' }}
+                                        @endswitch
+                                    </td>
+
+                                    <td class="py-3 pr-4 text-gray-600 whitespace-nowrap">
+                                        {{ $m->reference_document ?? '—' }}
+                                    </td>
+
+                                    <td class="py-3 pr-4 text-gray-600 whitespace-nowrap">
+                                        {{ $m->performed_by_user_email ?? '—' }}
+                                    </td>
+
+                                    <td class="py-3 pr-2 text-gray-600">
+                                        {{ $m->notes ?? '—' }}
+                                    </td>
                                 </tr>
-                            </thead>
-
-                            <tbody class="divide-y">
-                                @forelse($movements as $m)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="py-3 pr-4 text-gray-600 whitespace-nowrap">
-                                            {{ optional($m->occurred_at)->format('Y-m-d') }}
-                                            <div class="text-[11px] text-gray-500">{{ optional($m->occurred_at)->format('H:i') }}</div>
-                                        </td>
-
-                                        <td class="py-3 pr-4">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] bg-gray-100 text-gray-700 font-semibold whitespace-nowrap">
-                                                {{ $m->type->label() }}
-                                            </span>
-                                        </td>
-
-                                        <td class="py-3 pr-4 font-medium text-gray-800 whitespace-nowrap">
-                                            {{ $m->tankUnit?->serial ?? $m->tank_unit_id }}
-                                        </td>
-
-                                        <td class="py-3 pr-4 text-gray-600">
-                                            {{ $m->fromArea?->name ?? '—' }}
-                                        </td>
-
-                                        <td class="py-3 pr-4 text-gray-600">
-                                            {{ $m->toArea?->name ?? '—' }}
-                                        </td>
-
-                                        <td class="py-3 pr-4 text-gray-600 whitespace-nowrap">
-                                            {{ $m->batch?->code ?? '—' }}
-                                        </td>
-
-                                        <td class="py-3 pr-4 text-gray-600 whitespace-nowrap">
-                                            {{ $m->reference_document ?? '—' }}
-                                        </td>
-
-                                        <td class="py-3 pr-4 text-gray-600 whitespace-nowrap">
-                                            {{ $m->performed_by_user_email ?? '—' }}
-                                        </td>
-
-                                        <td class="py-3 pr-2 text-gray-600">
-                                            {{ $m->notes ?? '—' }}
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="9" class="py-10 text-center text-gray-500">
-                                            No hay movimientos para los filtros aplicados.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="py-10 text-center text-gray-500">
+                                        No hay movimientos para los filtros aplicados.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
                     <div class="mt-4">
                         {{ $movements->links() }}
