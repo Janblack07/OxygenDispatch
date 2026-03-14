@@ -94,6 +94,7 @@
                         <table class="min-w-full text-sm">
                             <thead class="text-xs uppercase text-gray-500 bg-gray-50">
                                 <tr>
+                                    <th class="px-3 py-2 text-left">Lote</th>
                                     <th class="px-3 py-2 text-left">Serial</th>
                                     <th class="px-3 py-2 text-left">Gas</th>
                                     <th class="px-3 py-2 text-left">Capacidad</th>
@@ -103,6 +104,9 @@
                                 @forelse($dispatch->lines as $ln)
                                     @php($t = $ln->tankUnit)
                                     <tr class="hover:bg-gray-50">
+                                        <td class="px-3 py-2 text-gray-600">
+                                            {{ $t?->batch?->batch_number ?? '—' }}
+                                        </td>
                                         <td class="px-3 py-2 font-medium text-gray-800">
                                             {{ $t?->serial ?? $ln->tank_unit_id }}
                                         </td>

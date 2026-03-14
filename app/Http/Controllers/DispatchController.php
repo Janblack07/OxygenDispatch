@@ -109,7 +109,12 @@ class DispatchController extends Controller
 
     public function show(Dispatch $dispatch)
     {
-        $dispatch->load(['client','lines.tankUnit.gasType','lines.tankUnit.capacity']);
+        $dispatch->load([
+    'client',
+    'lines.tankUnit.gasType',
+    'lines.tankUnit.capacity',
+    'lines.tankUnit.batch',
+    ]);
         return view('dispatches.show', compact('dispatch'));
     }
 }
