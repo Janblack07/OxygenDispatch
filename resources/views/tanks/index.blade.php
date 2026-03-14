@@ -34,9 +34,9 @@
                         </div>
 
                         <div class="md:col-span-2">
-                            <label class="{{ $labelSm }}">Lote (ID)</label>
-                            <input name="batch_id" value="{{ request('batch_id') }}"
-                                   class="{{ $inputSm }}" placeholder="Ej: 5">
+                            <label class="{{ $labelSm }}">Lote</label>
+                            <input name="batch_number" value="{{ request('batch_number') }}"
+                                class="{{ $inputSm }}" placeholder="Ej: LOTE-001">
                         </div>
 
                         <div class="md:col-span-2">
@@ -88,7 +88,6 @@
                                 <option value="2" @selected(request('status') === '2')>Despachado</option>
                                 <option value="3" @selected(request('status') === '3')>Baja</option>
                             </select>
-                            <p class="mt-1 text-[11px] text-gray-400">Ajusta labels/valores a tu enum real.</p>
                         </div>
 
                         <div class="md:col-span-1">
@@ -124,10 +123,11 @@
                         <table class="min-w-full text-sm">
                             <thead class="text-left text-xs text-gray-500 border-b">
                                 <tr>
-                                    <th class="py-2 pr-4">Serial</th>
                                     <th class="py-2 pr-4">Lote</th>
+                                    <th class="py-2 pr-4">Serial</th>
                                     <th class="py-2 pr-4">Gas</th>
                                     <th class="py-2 pr-4">Capacidad</th>
+                                    <th class="py-2 pr-4">Registro sanitario</th>
                                     <th class="py-2 pr-4">Área</th>
                                     <th class="py-2 pr-4">Estado técnico</th>
                                     <th class="py-2 pr-4">Estado</th>
@@ -138,10 +138,11 @@
                             <tbody class="divide-y">
                                 @forelse($tanks as $tank)
                                     <tr class="hover:bg-gray-50">
+                                        <td class="py-3 pr-4 text-gray-700">{{ $tank->batch?->batch_number ?? '—' }}</td>
                                         <td class="py-3 pr-4 font-semibold text-gray-900">{{ $tank->serial }}</td>
-                                        <td class="py-3 pr-4 text-gray-700">{{ $tank->batch_id }}</td>
                                         <td class="py-3 pr-4 text-gray-700">{{ $tank->gasType?->name }}</td>
                                         <td class="py-3 pr-4 text-gray-700">{{ $tank->capacity?->name }}</td>
+                                        <td class="py-3 pr-4 text-gray-700">{{ $tank->sanitary_registry ?? $tank->product?->sanitary_registry ?? '—' }}</td>
                                         <td class="py-3 pr-4 text-gray-700">{{ $tank->warehouseArea?->name }}</td>
                                         <td class="py-3 pr-4 text-gray-700">{{ $tank->technicalStatus?->name }}</td>
 

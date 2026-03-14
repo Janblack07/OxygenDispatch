@@ -16,10 +16,14 @@ class TankUnitController extends Controller
 
     public function index(Request $request)
     {
-        $q = TankUnit::with(['batch','gasType','capacity','warehouseArea','technicalStatus'])
-            ->orderBy('created_at','desc');
+        $q = TankUnit::with(['batch','product','gasType','capacity','warehouseArea','technicalStatus'])
+        ->orderBy('created_at','desc');
 
-             if ($request->filled('batch_id')) $q->where('batch_id', (int)$request->input('batch_id'));
+             if ($request->filled('batch_number')) {
+                $q->whereHas('batch', function ($query) use ($request) {
+                    $query->where('batch_number', 'like', '%' . trim($request->input('batch_number')) . '%');
+                });
+}
 
         if ($request->filled('status')) $q->where('status', (int)$request->input('status'));
         if ($request->filled('gas_type_id')) $q->where('gas_type_id', (int)$request->input('gas_type_id'));
