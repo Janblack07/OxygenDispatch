@@ -4,14 +4,16 @@ namespace App\Enums;
 
 enum EntityType: int
 {
-    case PUBLICA = 1;
-    case PRIVADA = 2;
+    case ENTIDAD = 1;
+    case INTRADOMICILIARIO_IESS = 2;
+    case NO_AFILIADO_APOYO = 3;
 
     public function label(): string
     {
         return match ($this) {
-            self::PUBLICA => 'Pública',
-            self::PRIVADA => 'Privada',
+            self::ENTIDAD => 'Entidad',
+            self::INTRADOMICILIARIO_IESS => 'Intradomiciliario IESS',
+            self::NO_AFILIADO_APOYO => 'No afiliado / Apoyo',
         };
     }
 }

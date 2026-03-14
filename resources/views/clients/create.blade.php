@@ -51,6 +51,15 @@
                                 <label class="{{ $labelSm }}">Documento</label>
                                 <input name="document" value="{{ old('document') }}" class="{{ $inputSm }}" placeholder="RUC/Cédula">
                             </div>
+                            <div>
+                                <label class="{{ $labelSm }}">Tipo cliente <span class="text-red-500">*</span></label>
+                                <select name="entity_type" class="{{ $selectSm }}" required>
+                                    <option value="">— Seleccionar —</option>
+                                    <option value="1" @selected(old('entity_type')=='1')>Entidad</option>
+                                    <option value="2" @selected(old('entity_type')=='2')>Intradomiciliario IESS</option>
+                                    <option value="3" @selected(old('entity_type')=='3')>No afiliado / Apoyo</option>
+                                </select>
+                            </div>
 
                             <div>
                                 <label class="{{ $labelSm }}">Teléfono</label>

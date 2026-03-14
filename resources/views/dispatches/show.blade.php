@@ -51,9 +51,9 @@
                             <div class="font-medium text-gray-800">{{ $dispatch->document_number ?? '—' }}</div>
                         </div>
 
-                        <div class="md:col-span-2">
-                            <div class="text-xs text-gray-500">Tipo entidad</div>
-                            <div class="font-medium text-gray-800">{{ $dispatch->entity_type ?? '—' }}</div>
+                        <div>
+                            <div class="text-sm text-gray-500">Tipo cliente</div>
+                            <div>{{ $dispatch->entity_type?->label() ?? $dispatch->client?->entity_type?->label() ?? '—' }}</div>
                         </div>
 
                         <div class="md:col-span-3">
@@ -115,7 +115,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="3" class="px-3 py-6 text-center text-gray-500">
+                                        <td colspan="4" class="px-3 py-6 text-center text-gray-500">
                                             No hay líneas en este despacho.
                                         </td>
                                     </tr>

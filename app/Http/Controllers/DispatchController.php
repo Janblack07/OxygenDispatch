@@ -36,29 +36,31 @@ class DispatchController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $data = $request->validate([
-            'client_id' => ['nullable','integer','exists:clients,id'],
-            'dispatched_at' => ['required','date'],
-            'document_number' => ['nullable','string','max:100'],
-            'entity_type' => ['nullable','integer','in:1,2'],
-            'remission_plate' => ['nullable','string','max:50'],
-            'voucher_type' => ['nullable','string','max:50'],
-            'voucher_number' => ['nullable','string','max:100'],
-            'remission_number' => ['nullable','string','max:100'],
-            'notes' => ['nullable','string'],
-            'tank_ids' => ['required','array','min:1'],
-            'tank_ids.*' => ['required','string','exists:tank_units,id'],
-        ]);
+{
+    $data = $request->validate([
+        'client_id' => ['nullable','integer','exists:clients,id'],
+        'dispatched_at' => ['required','date'],
+        'document_number' => ['nullable','string','max:100'],
+        'remission_plate' => ['nullable','string','max:50'],
+        'voucher_type' => ['nullable','string','max:50'],
+        'voucher_number' => ['nullable','string','max:100'],
+        'remission_number' => ['nullable','string','max:100'],
+        'notes' => ['nullable','string'],
+        'tank_ids' => ['required','array','min:1'],
+        'tank_ids.*' => ['required','string','exists:tank_units,id'],
+    ]);
 
-        $dispatch = $this->dispatchService->createDispatch(
-            collect($data)->except(['tank_ids'])->toArray(),
-            $data['tank_ids'],
-            $request->user()->email
-        );
+    $client = !empty($data['client_id']) ? Client::find($data['client_id']) : null;
+    $data['entity_type'] = $client?->entity_type?->value;
 
-        return redirect()->route('dispatches.show', $dispatch)->with('success','Despacho creado.');
-    }
+    $dispatch = $this->dispatchService->createDispatch(
+        collect($data)->except(['tank_ids'])->toArray(),
+        $data['tank_ids'],
+        $request->user()->email
+    );
+
+    return redirect()->route('dispatches.show', $dispatch)->with('success','Despacho creado.');
+}
 
     public function createByQuantity()
     {
@@ -72,40 +74,53 @@ class DispatchController extends Controller
     }
 
     public function storeByQuantity(Request $request)
-    {
-        $data = $request->validate([
-            'client_id' => ['nullable','integer','exists:clients,id'],
-            'dispatched_at' => ['required','date'],
-            'document_number' => ['nullable','string','max:100'],
-            'entity_type' => ['nullable','integer','in:1,2'],
-            'remission_plate' => ['nullable','string','max:50'],
-            'voucher_type' => ['nullable','string','max:50'],
-            'voucher_number' => ['nullable','string','max:100'],
-            'remission_number' => ['nullable','string','max:100'],
-            'notes' => ['nullable','string'],
-            'quantity' => ['required','integer','min:1','max:5000'],
-            'gas_type_id' => ['nullable','integer','exists:gas_types,id'],
-            'capacity_id' => ['nullable','integer','exists:cylinder_capacities,id'],
-            'warehouse_area_id' => ['nullable','integer','exists:warehouse_areas,id'],
-            'technical_status_id' => ['nullable','integer','exists:technical_statuses,id'],
-        ]);
+{
+    $data = $request->validate([
+        'client_id' => ['nullable','integer','exists:clients,id'],
+        'dispatched_at' => ['required','date'],
+        'document_number' => ['nullable','string','max:100'],
+        'remission_plate' => ['nullable','string','max:50'],
+        'voucher_type' => ['nullable','string','max:50'],
+        'voucher_number' => ['nullable','string','max:100'],
+        'remission_number' => ['nullable','string','max:100'],
+        'notes' => ['nullable','string'],
+        'quantity' => ['required','integer','min:1','max:5000'],
+        'gas_type_id' => ['nullable','integer','exists:gas_types,id'],
+        'capacity_id' => ['nullable','integer','exists:cylinder_capacities,id'],
+        'warehouse_area_id' => ['nullable','integer','exists:warehouse_areas,id'],
+        'technical_status_id' => ['nullable','integer','exists:technical_statuses,id'],
+    ]);
 
-        $filters = [
-            'gas_type_id' => $data['gas_type_id'] ?? null,
-            'capacity_id' => $data['capacity_id'] ?? null,
-            'warehouse_area_id' => $data['warehouse_area_id'] ?? null,
-            'technical_status_id' => $data['technical_status_id'] ?? null,
-        ];
+    $client = !empty($data['client_id'])
+        ? Client::find($data['client_id'])
+        : null;
 
-        $dispatch = $this->dispatchService->createDispatchByQuantity(
-            collect($data)->except(['quantity','gas_type_id','capacity_id','warehouse_area_id','technical_status_id'])->toArray(),
-            (int)$data['quantity'],
-            $filters,
-            $request->user()->email
-        );
+    $data['entity_type'] = $client?->entity_type?->value;
 
-        return redirect()->route('dispatches.show', $dispatch)->with('success','Despacho creado por cantidad.');
-    }
+    $filters = [
+        'gas_type_id' => $data['gas_type_id'] ?? null,
+        'capacity_id' => $data['capacity_id'] ?? null,
+        'warehouse_area_id' => $data['warehouse_area_id'] ?? null,
+        'technical_status_id' => $data['technical_status_id'] ?? null,
+    ];
+
+    $dispatch = $this->dispatchService->createDispatchByQuantity(
+        collect($data)->except([
+            'quantity',
+            'gas_type_id',
+            'capacity_id',
+            'warehouse_area_id',
+            'technical_status_id'
+        ])->toArray(),
+        (int)$data['quantity'],
+        $filters,
+        $request->user()->email
+    );
+
+    return redirect()
+        ->route('dispatches.show', $dispatch)
+        ->with('success','Despacho creado por cantidad.');
+}
 
     public function show(Dispatch $dispatch)
     {

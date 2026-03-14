@@ -42,6 +42,7 @@
                                 <tr>
                                     <th class="px-3 py-2 text-left">Nombre</th>
                                     <th class="px-3 py-2 text-left">Documento</th>
+                                    <th class="px-3 py-2 text-left">Tipo</th>
                                     <th class="px-3 py-2 text-left">Teléfono</th>
                                     <th class="px-3 py-2 text-left">Email</th>
                                     <th class="px-3 py-2 text-left">Dirección</th>
@@ -55,6 +56,7 @@
                                             {{ $c->name }}
                                         </td>
                                         <td class="px-3 py-2 text-gray-600">{{ $c->document ?? '—' }}</td>
+                                        <td class="px-3 py-2 text-gray-600">{{ $c->entity_type?->label() ?? '—' }}</td>
                                         <td class="px-3 py-2 text-gray-600">{{ $c->phone ?? '—' }}</td>
                                         <td class="px-3 py-2 text-gray-600">{{ $c->email ?? '—' }}</td>
                                         <td class="px-3 py-2 text-gray-600">{{ $c->address ?? '—' }}</td>

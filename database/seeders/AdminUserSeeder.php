@@ -18,14 +18,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('Admin123!'),
                 'role' => AppRole::ADMINISTRADOR->value,
                 'is_active' => true,
-            ],
-            ['email' => 'jandryjacob20@gmail.com'],
-            [
-                'name' => 'PROGRAMADOR',
-                'password' => Hash::make('Jandryjacob123.'),
-                'role' => AppRole::PROGRAMADOR->value,
-                'is_active' => true,
-            ],
+            ]
         );
     }
 }

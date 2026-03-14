@@ -131,15 +131,7 @@
                                 </select>
                             </div>
 
-                            {{-- Tipo entidad --}}
-                            <div class="md:col-span-3">
-                                <label class="{{ $labelSm }}">Tipo entidad</label>
-                                <select name="entity_type" class="{{ $selectSm }}">
-                                    <option value="">—</option>
-                                    <option value="1" @selected(old('entity_type')=='1')>1</option>
-                                    <option value="2" @selected(old('entity_type')=='2')>2</option>
-                                </select>
-                            </div>
+
 
                             {{-- Placa remisión --}}
                             <div class="md:col-span-3">
