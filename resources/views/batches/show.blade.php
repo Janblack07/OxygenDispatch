@@ -130,7 +130,7 @@
                     </form>
 
                     <p class="mt-3 text-xs text-gray-500">
-                        Nota: se registra un movimiento de <strong>Entrada</strong> por cada tanque generado (según tu implementación actual).
+                        Nota: se registra un movimiento de <strong>Entrada</strong> por cada tanque generado.
                     </p>
                 </div>
             </div>

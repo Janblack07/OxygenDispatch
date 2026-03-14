@@ -41,9 +41,15 @@ class CatalogSeeder extends Seeder
             CylinderCapacity::firstOrCreate(['name'=>$cap['name']], ['m3'=>$cap['m3']]);
         }
 
-        foreach (['Recepción','Cuarentena','Almacén','Despacho'] as $name) {
-            WarehouseArea::firstOrCreate(['name'=>$name]);
-        }
+        foreach ([
+    'Recepción',
+    'Cuarentena',
+    'Productos aprobados',
+    'Despacho',
+    'Rechazos, devoluciones y retiro del mercado',
+] as $name) {
+    WarehouseArea::firstOrCreate(['name' => $name]);
+}
 
         foreach (['Pendiente','Aprobado','Rechazado'] as $name) {
             TechnicalStatus::firstOrCreate(['name'=>$name]);

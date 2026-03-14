@@ -20,7 +20,6 @@ class CatalogProductSeeder extends Seeder
         $rows = [
             ['code'=>'00AC','detail'=>'AIRE COMPRIMIDO','gas_type_id'=>$air->id,'capacity_id'=>null,'sanitary_registry'=>'GN-320-09-10'],
             ['code'=>'00DCCARMED','detail'=>'DIOXIDO DE CARBONO','gas_type_id'=>$co2->id,'capacity_id'=>null,'sanitary_registry'=>'GN-414-03-11'],
-
             ['code'=>'OMG-0,42','detail'=>'OXÍGENO MEDICINAL GAS 0,42 m³','gas_type_id'=>$o2->id,'capacity_id'=>$capId('0.42 m3'),'sanitary_registry'=>'GN-414-03-11'],
             ['code'=>'OMG-0,68','detail'=>'OXÍGENO MEDICINAL GAS 0,68 m³','gas_type_id'=>$o2->id,'capacity_id'=>$capId('0.68 m3'),'sanitary_registry'=>'GN-413-03-11'],
             ['code'=>'OMG-1','detail'=>'OXÍGENO MEDICINAL GAS 1 m³','gas_type_id'=>$o2->id,'capacity_id'=>$capId('1 m3'),'sanitary_registry'=>'GN-413-03-11'],

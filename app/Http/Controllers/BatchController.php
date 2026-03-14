@@ -7,9 +7,11 @@ use App\Models\CatalogProduct;
 use App\Models\CylinderCapacity;
 use App\Models\GasType;
 use App\Models\TankUnit;
+use App\Services\BatchService;
 use App\Models\WarehouseArea;
 use App\Models\TechnicalStatus;
-use App\Services\BatchService;
+use App\Enums\MovementType;
+use App\Models\InventoryMovement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -145,42 +147,90 @@ class BatchController extends Controller
 
     public function generateTanks(Request $request, Batch $batch)
     {
-        $data = $request->validate([
-            'quantity' => 'required|integer|min:1|max:5000',
-            'warehouse_area_id' => 'required|exists:warehouse_areas,id',
-            'technical_status_id' => 'required|exists:technical_statuses,id',
-            'product_id' => 'required|exists:catalog_products,id',
-            'serial_prefix' => 'nullable|string|max:10',
-        ]);
+    $data = $request->validate([
+        'quantity' => 'required|integer|min:1|max:5000',
+        'warehouse_area_id' => 'required|exists:warehouse_areas,id',
+        'technical_status_id' => 'required|exists:technical_statuses,id',
+        'product_id' => 'required|exists:catalog_products,id',
+        'serial_prefix' => 'nullable|string|max:10',
+    ]);
 
-        $product = CatalogProduct::findOrFail($data['product_id']);
+    $product = CatalogProduct::findOrFail($data['product_id']);
+    $area = WarehouseArea::findOrFail($data['warehouse_area_id']);
+    $technicalStatus = TechnicalStatus::findOrFail($data['technical_status_id']);
 
-        DB::transaction(function () use ($data, $batch, $product) {
-            for ($i = 0; $i < $data['quantity']; $i++) {
-                [$serial, $prefix, $num] = $this->generateSerial($data['serial_prefix'] ?? null);
+    $areaName = mb_strtolower(trim($area->name));
+    $techName = mb_strtolower(trim($technicalStatus->name));
 
-                TankUnit::create([
-                    'batch_id' => $batch->id,
-                    'product_id' => $product->id,
-
-                    // recomendado para filtros
-                    'gas_type_id' => $product->gas_type_id,
-                    'capacity_id' => $product->capacity_id,
-
-                    'warehouse_area_id' => $data['warehouse_area_id'],
-                    'technical_status_id' => $data['technical_status_id'],
-
-                    'serial' => $serial,
-                    'serial_prefix' => $prefix,
-                    'serial_number' => $num,
-                ]);
-
-                // si ya registras inventory movement de entrada aquí, lo dejas dentro de la transacción
-            }
-        });
-
-        return back()->with('success', 'Tanques generados correctamente.');
+    // Reglas operativas mínimas según tus áreas
+    if ($areaName === 'despacho') {
+        return back()
+            ->withInput()
+            ->withErrors([
+                'warehouse_area_id' => 'No se deben generar tanques directamente en el área de despacho.',
+            ]);
     }
+
+    if (
+        in_array($techName, ['pendiente'], true) &&
+        in_array($areaName, ['productos aprobados', 'área de productos aprobados'], true)
+    ) {
+        return back()
+            ->withInput()
+            ->withErrors([
+                'warehouse_area_id' => 'Un tanque pendiente no debe ingresar directamente al área de productos aprobados.',
+            ]);
+    }
+
+    if (
+        in_array($techName, ['rechazado'], true) &&
+        !in_array($areaName, [
+            'rechazos',
+            'devoluciones',
+            'retiro del mercado',
+            'rechazos, devoluciones y retiro del mercado',
+            'área para rechazos, devoluciones y retiro del mercado',
+        ], true)
+    ) {
+        return back()
+            ->withInput()
+            ->withErrors([
+                'warehouse_area_id' => 'Si el estado técnico es rechazado, el tanque debe ir al área de rechazos/devoluciones.',
+            ]);
+    }
+
+    DB::transaction(function () use ($data, $batch, $product, $area, $technicalStatus, $request) {
+        for ($i = 0; $i < $data['quantity']; $i++) {
+            [$serial, $prefix, $num] = $this->generateSerial($data['serial_prefix'] ?? null);
+
+            $tank = TankUnit::create([
+                'batch_id' => $batch->id,
+                'product_id' => $product->id,
+                'gas_type_id' => $product->gas_type_id,
+                'capacity_id' => $product->capacity_id,
+                'warehouse_area_id' => $area->id,
+                'technical_status_id' => $technicalStatus->id,
+                'serial' => $serial,
+                'serial_prefix' => $prefix,
+                'serial_number' => $num,
+            ]);
+
+            InventoryMovement::create([
+                'type' => MovementType::ENTRADA,
+                'occurred_at' => now(),
+                'tank_unit_id' => $tank->id,
+                'from_area_id' => null,
+                'to_area_id' => $area->id,
+                'batch_id' => $batch->id,
+                'reference_document' => $batch->document_number,
+                'performed_by_user_email' => $request->user()->email,
+                'notes' => "Ingreso inicial desde lote {$batch->batch_number}",
+            ]);
+        }
+    });
+
+    return back()->with('success', 'Tanques generados correctamente y movimientos de entrada registrados.');
+}
 
     private function generateSerial(?string $prefix = null): array
     {
