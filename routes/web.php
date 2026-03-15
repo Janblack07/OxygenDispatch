@@ -16,6 +16,7 @@ use App\Http\Controllers\Catalog\CylinderCapacityController;
 use App\Http\Controllers\Catalog\WarehouseAreaController;
 use App\Http\Controllers\Catalog\TechnicalStatusController;
 
+use App\Http\Controllers\MonthlyReportController;
 Route::get('/', fn() => redirect()->route('dashboard'))->name('home');
 // Breeze - Profile routes (necesarias para navigation.blade.php)
 Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -50,6 +51,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dispatches/create-by-quantity', [DispatchController::class, 'createByQuantity'])->name('dispatches.create-by-quantity');
     Route::post('dispatches/store-by-quantity', [DispatchController::class, 'storeByQuantity'])->name('dispatches.store-by-quantity');
     Route::get('dispatches/{dispatch}', [DispatchController::class, 'show'])->name('dispatches.show');
+    //REPORTE
+    Route::get('/reports/monthly', [MonthlyReportController::class, 'index'])->name('reports.monthly.index');
+    Route::get('/reports/monthly/entries/pdf', [MonthlyReportController::class, 'entriesPdf'])->name('reports.monthly.entries.pdf');
+    Route::get('/reports/monthly/exits/pdf', [MonthlyReportController::class, 'exitsPdf'])->name('reports.monthly.exits.pdf');
 
     // Users protegido por roles
     Route::middleware(['role:PROGRAMADOR,ADMINISTRADOR'])->group(function () {

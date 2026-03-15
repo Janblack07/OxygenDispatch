@@ -35,6 +35,9 @@
                     <x-nav-link :href="route('inventory.movements')" :active="request()->routeIs('inventory.movements')">
                         {{ __('Movimientos') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('reports.monthly.index')" :active="request()->routeIs('reports.monthly.*')">
+                        {{ __('Reportes') }}
+                    </x-nav-link>
 
                     {{-- Catálogos (mismo estilo Breeze) --}}
                     <div class="hidden sm:flex sm:items-center sm:ms-2">
@@ -153,6 +156,9 @@
 
             <x-responsive-nav-link :href="route('inventory.movements')" :active="request()->routeIs('inventory.movements')">
                 {{ __('Movimientos') }}
+            </x-responsive-nav-link>
+             <x-responsive-nav-link :href="route('reports.monthly.index')" :active="request()->routeIs('reports.monthly.*')">
+               {{ __('Reportes') }}
             </x-responsive-nav-link>
 
             <div class="px-4 pt-2 text-xs text-gray-500 uppercase tracking-wide">
