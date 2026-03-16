@@ -195,5 +195,4 @@
             </form>
         </div>
     </div>
-    @vite('resources/js/dispatch-client-lookup.js')
 </x-app-layout>
