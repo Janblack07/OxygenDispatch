@@ -52,6 +52,7 @@
                                     class="{{ $inputSm }}"
                                     placeholder="Ej: 1311111111"
                                     autocomplete="off"
+                                    data-lookup-url="{{ route('clients.findByDocument') }}"
                                 >
 
                                 <div id="client_lookup_error" class="mt-1 text-xs text-red-600 hidden">
@@ -194,7 +195,4 @@
             </form>
         </div>
     </div>
-    <script>
-    window.clientFindByDocumentUrl = "{{ route('clients.findByDocument') }}";
-</script>
 </x-app-layout>

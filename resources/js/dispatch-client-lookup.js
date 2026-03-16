@@ -1,10 +1,17 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initDispatchClientLookup() {
     const docInput = document.getElementById('client_document_lookup');
     const nameInput = document.getElementById('client_name_display');
     const clientIdHidden = document.getElementById('client_id_hidden');
     const errorBox = document.getElementById('client_lookup_error');
 
     if (!docInput || !nameInput || !clientIdHidden || !errorBox) {
+        return;
+    }
+
+    const lookupUrl = docInput.dataset.lookupUrl;
+
+    if (!lookupUrl) {
+        console.error('No se encontró data-lookup-url en client_document_lookup');
         return;
     }
 
@@ -17,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const searchClient = async (documentValue) => {
-        const value = documentValue.trim();
+        const value = (documentValue || '').trim();
 
         if (!value) {
             resetClient();
@@ -25,7 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`/clients/find-by-document?document=${encodeURIComponent(value)}`, {
+            const response = await fetch(`${lookupUrl}?document=${encodeURIComponent(value)}`, {
+                method: 'GET',
+                credentials: 'same-origin',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
@@ -49,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 errorBox.classList.remove('hidden');
             }
         } catch (error) {
+            console.error('Error buscando cliente por documento:', error);
             resetClient();
             errorBox.classList.remove('hidden');
         }
@@ -65,4 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
     docInput.addEventListener('blur', () => {
         searchClient(docInput.value);
     });
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDispatchClientLookup);
+} else {
+    initDispatchClientLookup();
+}
