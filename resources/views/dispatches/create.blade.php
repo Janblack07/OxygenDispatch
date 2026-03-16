@@ -45,15 +45,30 @@
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
 
                             <div class="md:col-span-4">
-                                <label class="{{ $labelSm }}">Cliente</label>
-                                <select name="client_id" class="{{ $selectSm }}">
-                                    <option value="">— Sin cliente —</option>
-                                    @foreach($clients as $c)
-                                        <option value="{{ $c->id }}" @selected(old('client_id')==$c->id)>
-                                            {{ $c->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <label class="{{ $labelSm }}" for="client_document_lookup">Cédula / RUC</label>
+                                <input
+                                    type="text"
+                                    id="client_document_lookup"
+                                    class="{{ $inputSm }}"
+                                    placeholder="Ej: 1311111111"
+                                    autocomplete="off"
+                                >
+
+                                <div id="client_lookup_error" class="mt-1 text-xs text-red-600 hidden">
+                                    Ese cliente no existe, primero regístralo.
+                                </div>
+                            </div>
+
+                            <div class="md:col-span-4">
+                                <label class="{{ $labelSm }}" for="client_name_display">Cliente</label>
+                                <input
+                                    type="text"
+                                    id="client_name_display"
+                                    class="{{ $inputSm }} bg-gray-50"
+                                    placeholder="Aquí aparecerá el cliente encontrado"
+                                    readonly
+                                >
+                                <input type="hidden" name="client_id" id="client_id_hidden" value="{{ old('client_id') }}">
                             </div>
 
                             <div class="md:col-span-4">
@@ -179,4 +194,5 @@
             </form>
         </div>
     </div>
+    @vite('resources/js/dispatch-client-lookup.js')
 </x-app-layout>

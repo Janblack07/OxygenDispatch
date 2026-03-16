@@ -23,17 +23,21 @@ class DispatchController extends Controller
     }
 
     public function create()
-    {
-        $clients = Client::orderBy('name')->get();
+{
+    $clients = Client::query()
+        ->select(['id', 'name', 'document'])
+        ->whereNotNull('document')
+        ->orderBy('document')
+        ->get();
 
-        $tanks = TankUnit::with(['gasType','capacity','warehouseArea','technicalStatus'])
-            ->where('status', 1)
-            ->orderBy('created_at','asc')
-            ->limit(200)
-            ->get();
+    $tanks = TankUnit::with(['gasType','capacity','warehouseArea','technicalStatus'])
+        ->where('status', 1)
+        ->orderBy('created_at','asc')
+        ->limit(200)
+        ->get();
 
-        return view('dispatches.create', compact('clients','tanks'));
-    }
+    return view('dispatches.create', compact('clients','tanks'));
+}
 
     public function store(Request $request)
 {
@@ -63,15 +67,19 @@ class DispatchController extends Controller
 }
 
     public function createByQuantity()
-    {
-        return view('dispatches.create_by_quantity', [
-            'clients' => Client::orderBy('name')->get(),
-            'gasTypes' => GasType::orderBy('name')->get(),
-            'capacities' => CylinderCapacity::orderBy('name')->get(),
-            'areas' => WarehouseArea::orderBy('name')->get(),
-            'techStatuses' => TechnicalStatus::orderBy('name')->get(),
-        ]);
-    }
+{
+    return view('dispatches.create_by_quantity', [
+        'clients' => Client::query()
+            ->select(['id', 'name', 'document'])
+            ->whereNotNull('document')
+            ->orderBy('document')
+            ->get(),
+        'gasTypes' => GasType::orderBy('name')->get(),
+        'capacities' => CylinderCapacity::orderBy('name')->get(),
+        'areas' => WarehouseArea::orderBy('name')->get(),
+        'techStatuses' => TechnicalStatus::orderBy('name')->get(),
+    ]);
+}
 
     public function storeByQuantity(Request $request)
 {

@@ -33,6 +33,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('catalog/technical-statuses', TechnicalStatusController::class)->names('technical-statuses');
 
     // Core
+    Route::get('/clients/find-by-document', [ClientController::class, 'findByDocument'])
+        ->name('clients.findByDocument');
     Route::resource('clients', ClientController::class);
     Route::resource('batches', BatchController::class);
     Route::post('batches/{batch}/generate-tanks', [BatchController::class, 'generateTanks'])->name('batches.generate-tanks');
@@ -55,6 +57,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/monthly', [MonthlyReportController::class, 'index'])->name('reports.monthly.index');
     Route::get('/reports/monthly/entries/pdf', [MonthlyReportController::class, 'entriesPdf'])->name('reports.monthly.entries.pdf');
     Route::get('/reports/monthly/exits/pdf', [MonthlyReportController::class, 'exitsPdf'])->name('reports.monthly.exits.pdf');
+
 
     // Users protegido por roles
     Route::middleware(['role:PROGRAMADOR,ADMINISTRADOR'])->group(function () {

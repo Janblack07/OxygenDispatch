@@ -37,6 +37,35 @@ class ClientController extends Controller
     {
         return view('clients.edit', compact('client'));
     }
+    public function findByDocument(Request $request)
+{
+    $request->validate([
+        'document' => ['required', 'string', 'max:50'],
+    ]);
+
+    $document = trim($request->input('document'));
+
+    $client = \App\Models\Client::query()
+        ->select(['id', 'name', 'document'])
+        ->where('document', $document)
+        ->first();
+
+    if (!$client) {
+        return response()->json([
+            'found' => false,
+            'message' => 'Ese cliente no existe, primero regístralo.',
+        ], 404);
+    }
+
+    return response()->json([
+        'found' => true,
+        'client' => [
+            'id' => $client->id,
+            'name' => $client->name,
+            'document' => $client->document,
+        ],
+    ]);
+}
 
     public function update(Request $request, Client $client)
     {
