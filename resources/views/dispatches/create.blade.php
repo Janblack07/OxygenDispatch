@@ -84,18 +84,6 @@
                             </div>
 
                             <div class="md:col-span-4">
-                                <label class="{{ $labelSm }}" for="client_name_display">Cliente</label>
-                                <input
-                                    type="text"
-                                    id="client_name_display"
-                                    class="{{ $inputSm }} bg-gray-50"
-                                    placeholder="Aquí aparecerá el cliente encontrado"
-                                    readonly
-                                >
-                                <input type="hidden" name="client_id" id="client_id_hidden" value="{{ old('client_id') }}">
-                            </div>
-
-                            <div class="md:col-span-4">
                                 <label class="{{ $labelSm }}">Fecha despacho <span class="text-red-500">*</span></label>
                                 <input type="datetime-local" name="dispatched_at"
                                        value="{{ old('dispatched_at', now()->format('Y-m-d\TH:i')) }}"
