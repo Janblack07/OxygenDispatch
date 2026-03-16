@@ -46,18 +46,41 @@
 
                             <div class="md:col-span-4">
                                 <label class="{{ $labelSm }}" for="client_document_lookup">Cédula / RUC</label>
-                                <input
-                                    type="text"
-                                    id="client_document_lookup"
-                                    class="{{ $inputSm }}"
-                                    placeholder="Ej: 1311111111"
-                                    autocomplete="off"
-                                    data-lookup-url="{{ route('clients.findByDocument') }}"
-                                >
+                                <div class="mt-1 flex gap-2">
+                                    <input
+                                        type="text"
+                                        id="client_document_lookup"
+                                        class="{{ $inputSm }}"
+                                        placeholder="Ej: 1311111111"
+                                        autocomplete="off"
+                                        data-lookup-url="{{ route('clients.findByDocument') }}"
+                                    >
 
+                                    <button
+                                        type="button"
+                                        id="btn_validate_client"
+                                        class="inline-flex items-center px-3 py-2 bg-indigo-600 text-white rounded-md font-semibold text-xs uppercase tracking-widest hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 whitespace-nowrap"
+                                    >
+                                        Validar
+                                    </button>
+                                </div>
+
+                                <div id="client_lookup_ok" class="mt-1 text-xs text-green-700 hidden"></div>
                                 <div id="client_lookup_error" class="mt-1 text-xs text-red-600 hidden">
                                     Ese cliente no existe, primero regístralo.
                                 </div>
+                            </div>
+
+                            <div class="md:col-span-4">
+                                <label class="{{ $labelSm }}" for="client_name_display">Cliente</label>
+                                <input
+                                    type="text"
+                                    id="client_name_display"
+                                    class="{{ $inputSm }} bg-gray-50"
+                                    placeholder="Aquí aparecerá el cliente encontrado"
+                                    readonly
+                                >
+                                <input type="hidden" name="client_id" id="client_id_hidden" value="{{ old('client_id') }}">
                             </div>
 
                             <div class="md:col-span-4">

@@ -1,10 +1,12 @@
 function initDispatchClientLookup() {
     const docInput = document.getElementById('client_document_lookup');
+    const validateBtn = document.getElementById('btn_validate_client');
     const nameInput = document.getElementById('client_name_display');
     const clientIdHidden = document.getElementById('client_id_hidden');
+    const okBox = document.getElementById('client_lookup_ok');
     const errorBox = document.getElementById('client_lookup_error');
 
-    if (!docInput || !nameInput || !clientIdHidden || !errorBox) {
+    if (!docInput || !validateBtn || !nameInput || !clientIdHidden || !okBox || !errorBox) {
         return;
     }
 
@@ -15,21 +17,40 @@ function initDispatchClientLookup() {
         return;
     }
 
-    let timeout = null;
-
     const resetClient = () => {
         nameInput.value = '';
         clientIdHidden.value = '';
+        okBox.textContent = '';
+        okBox.classList.add('hidden');
         errorBox.classList.add('hidden');
     };
 
-    const searchClient = async (documentValue) => {
-        const value = (documentValue || '').trim();
+    const showError = () => {
+        nameInput.value = '';
+        clientIdHidden.value = '';
+        okBox.textContent = '';
+        okBox.classList.add('hidden');
+        errorBox.classList.remove('hidden');
+    };
+
+    const showSuccess = (client) => {
+        nameInput.value = client.name;
+        clientIdHidden.value = client.id;
+        okBox.textContent = `Cliente encontrado: ${client.name} (${client.document})`;
+        okBox.classList.remove('hidden');
+        errorBox.classList.add('hidden');
+    };
+
+    const searchClient = async () => {
+        const value = (docInput.value || '').trim();
 
         if (!value) {
             resetClient();
             return;
         }
+
+        validateBtn.disabled = true;
+        validateBtn.textContent = 'Validando...';
 
         try {
             const response = await fetch(`${lookupUrl}?document=${encodeURIComponent(value)}`, {
@@ -42,38 +63,34 @@ function initDispatchClientLookup() {
             });
 
             if (!response.ok) {
-                resetClient();
-                errorBox.classList.remove('hidden');
+                showError();
                 return;
             }
 
             const data = await response.json();
 
             if (data.found && data.client) {
-                nameInput.value = data.client.name;
-                clientIdHidden.value = data.client.id;
-                errorBox.classList.add('hidden');
+                showSuccess(data.client);
             } else {
-                resetClient();
-                errorBox.classList.remove('hidden');
+                showError();
             }
         } catch (error) {
             console.error('Error buscando cliente por documento:', error);
-            resetClient();
-            errorBox.classList.remove('hidden');
+            showError();
+        } finally {
+            validateBtn.disabled = false;
+            validateBtn.textContent = 'Validar';
         }
     };
 
+    validateBtn.addEventListener('click', searchClient);
+
     docInput.addEventListener('input', () => {
-        clearTimeout(timeout);
-
-        timeout = setTimeout(() => {
-            searchClient(docInput.value);
-        }, 400);
-    });
-
-    docInput.addEventListener('blur', () => {
-        searchClient(docInput.value);
+        nameInput.value = '';
+        clientIdHidden.value = '';
+        okBox.textContent = '';
+        okBox.classList.add('hidden');
+        errorBox.classList.add('hidden');
     });
 }
 
