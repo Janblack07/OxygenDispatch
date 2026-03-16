@@ -194,5 +194,7 @@
             </form>
         </div>
     </div>
-    @vite('resources/js/dispatch-client-lookup.js')
+    <script>
+    window.clientFindByDocumentUrl = "{{ route('clients.findByDocument') }}";
+</script>
 </x-app-layout>
