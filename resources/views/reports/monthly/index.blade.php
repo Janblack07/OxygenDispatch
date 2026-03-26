@@ -70,7 +70,7 @@
                     </div>
 
                     <div class="p-4 space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div class="rounded-xl bg-indigo-50 border border-indigo-100 p-4">
                                 <div class="text-xs text-indigo-700">Total entradas</div>
                                 <div class="text-2xl font-bold text-indigo-900">{{ $entriesSummary['total_movements'] }}</div>
@@ -80,31 +80,68 @@
                                 <div class="text-xs text-green-700">Total tanques</div>
                                 <div class="text-2xl font-bold text-green-900">{{ $entriesSummary['total_tanks'] }}</div>
                             </div>
+
+                            <div class="rounded-xl bg-cyan-50 border border-cyan-100 p-4">
+                                <div class="text-xs text-cyan-700">Volumen total</div>
+                                <div class="text-2xl font-bold text-cyan-900">{{ number_format($entriesSummary['total_m3'], 2) }} <span class="text-sm">m³</span></div>
+                            </div>
                         </div>
 
-                        <div>
-                            <h4 class="font-medium text-sm text-gray-800 mb-2">Entradas por área destino</h4>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full text-sm">
-                                    <thead class="text-xs uppercase text-gray-500 bg-gray-50">
-                                        <tr>
-                                            <th scope="col" class="px-3 py-2 text-left">Área</th>
-                                            <th scope="col" class="px-3 py-2 text-left">Cantidad</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-100">
-                                        @forelse($entriesSummary['by_area'] as $row)
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div>
+                                <h4 class="font-medium text-sm text-gray-800 mb-2">Entradas por área destino</h4>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full text-sm">
+                                        <thead class="text-xs uppercase text-gray-500 bg-gray-50">
                                             <tr>
-                                                <td class="px-3 py-2">{{ $row->toArea?->name ?? '—' }}</td>
-                                                <td class="px-3 py-2">{{ $row->total }}</td>
+                                                <th scope="col" class="px-3 py-2 text-left">Área</th>
+                                                <th scope="col" class="px-3 py-2 text-right">Tanques</th>
+                                                <th scope="col" class="px-3 py-2 text-right">m³</th>
                                             </tr>
-                                        @empty
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-100">
+                                            @forelse($entriesSummary['by_area'] as $row)
+                                                <tr>
+                                                    <td class="px-3 py-2">{{ $row->label }}</td>
+                                                    <td class="px-3 py-2 text-right">{{ $row->total_tanks }}</td>
+                                                    <td class="px-3 py-2 text-right">{{ number_format($row->total_m3, 2) }}</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="3" class="px-3 py-4 text-center text-gray-500">Sin datos</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="font-medium text-sm text-gray-800 mb-2">Entradas por capacidad</h4>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full text-sm">
+                                        <thead class="text-xs uppercase text-gray-500 bg-gray-50">
                                             <tr>
-                                                <td colspan="2" class="px-3 py-4 text-center text-gray-500">Sin datos</td>
+                                                <th scope="col" class="px-3 py-2 text-left">Capacidad</th>
+                                                <th scope="col" class="px-3 py-2 text-right">Tanques</th>
+                                                <th scope="col" class="px-3 py-2 text-right">m³</th>
                                             </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-100">
+                                            @forelse($entriesSummary['by_capacity'] as $row)
+                                                <tr>
+                                                    <td class="px-3 py-2">{{ $row->label }}</td>
+                                                    <td class="px-3 py-2 text-right">{{ $row->total_tanks }}</td>
+                                                    <td class="px-3 py-2 text-right">{{ number_format($row->total_m3, 2) }}</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="3" class="px-3 py-4 text-center text-gray-500">Sin datos</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
 
@@ -128,7 +165,7 @@
                     </div>
 
                     <div class="p-4 space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div class="rounded-xl bg-indigo-50 border border-indigo-100 p-4">
                                 <div class="text-xs text-blue-700">Total despachos</div>
                                 <div class="text-2xl font-bold text-blue-900">{{ $exitsSummary['total_dispatches'] }}</div>
@@ -138,27 +175,43 @@
                                 <div class="text-xs text-orange-700">Total tanques</div>
                                 <div class="text-2xl font-bold text-orange-900">{{ $exitsSummary['total_tanks'] }}</div>
                             </div>
+
+                            <div class="rounded-xl bg-cyan-50 border border-cyan-100 p-4">
+                                <div class="text-xs text-cyan-700">Volumen total</div>
+                                <div class="text-2xl font-bold text-cyan-900">{{ number_format($exitsSummary['total_m3'], 2) }} <span class="text-sm">m³</span></div>
+                            </div>
+
+                            <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4">
+                                <div class="text-xs text-emerald-700">Clientes atendidos</div>
+                                <div class="text-2xl font-bold text-emerald-900">{{ $exitsSummary['total_clients'] }}</div>
+                            </div>
                         </div>
 
                         <div>
-                            <h4 class="font-medium text-sm text-gray-800 mb-2">Despachos por tipo de cliente</h4>
+                            <h4 class="font-medium text-sm text-gray-800 mb-2">Volumen por tipo de cliente</h4>
                             <div class="overflow-x-auto">
                                 <table class="min-w-full text-sm">
                                     <thead class="text-xs uppercase text-gray-500 bg-gray-50">
                                         <tr>
                                             <th scope="col" class="px-3 py-2 text-left">Tipo</th>
-                                            <th scope="col" class="px-3 py-2 text-left">Despachos</th>
+                                            <th scope="col" class="px-3 py-2 text-right">Despachos</th>
+                                            <th scope="col" class="px-3 py-2 text-right">Tanques</th>
+                                            <th scope="col" class="px-3 py-2 text-right">m³</th>
+                                            <th scope="col" class="px-3 py-2 text-right">%</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
                                         @forelse($exitsSummary['by_entity_type'] as $row)
                                             <tr>
                                                 <td class="px-3 py-2">{{ $row->label }}</td>
-                                                <td class="px-3 py-2">{{ $row->total_dispatches }}</td>
+                                                <td class="px-3 py-2 text-right">{{ $row->total_dispatches }}</td>
+                                                <td class="px-3 py-2 text-right">{{ $row->total_tanks }}</td>
+                                                <td class="px-3 py-2 text-right">{{ number_format($row->total_m3, 2) }}</td>
+                                                <td class="px-3 py-2 text-right">{{ number_format($row->percentage_m3, 2) }}%</td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="2" class="px-3 py-4 text-center text-gray-500">Sin datos</td>
+                                                <td colspan="5" class="px-3 py-4 text-center text-gray-500">Sin datos</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
