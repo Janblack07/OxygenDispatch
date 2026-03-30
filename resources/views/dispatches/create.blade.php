@@ -179,7 +179,7 @@
                             </div>
 
                             <div class="text-right text-xs text-gray-500 space-y-1">
-                                <div>Total encontrados: {{ $tanks->total() }}</div>
+                                <div>Total encontrados: <span id="tanks-total-count">{{ $tanks->total() }}</span></div>
                                 <div>Seleccionados: <span id="selected-count">0</span></div>
                             </div>
                         </div>
@@ -231,84 +231,12 @@
                                 >
                                     Limpiar filtros
                                 </button>
-
-                                <button
-                                    type="button"
-                                    id="apply-tank-filters"
-                                    class="inline-flex items-center px-3 py-2 bg-gray-900 border border-gray-300 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-900"
-                                >
-                                    Filtrar tanques
-                                </button>
                             </div>
                         </div>
 
-                        <div class="rounded-md border border-gray-200 overflow-hidden">
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full text-sm">
-                                    <thead class="text-left text-xs text-gray-500 border-b bg-gray-50">
-                                        <tr>
-                                            <th class="px-3 py-2">Sel.</th>
-                                            <th class="px-3 py-2">Lote</th>
-                                            <th class="px-3 py-2">Serial</th>
-                                            <th class="px-3 py-2">Gas</th>
-                                            <th class="px-3 py-2">Capacidad</th>
-                                            <th class="px-3 py-2">Área</th>
-                                            <th class="px-3 py-2">Estado técnico</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody class="divide-y">
-                                        @forelse($tanks as $t)
-                                            <tr class="hover:bg-gray-50">
-                                                <td class="px-3 py-2 align-middle">
-                                                    <input
-                                                        type="checkbox"
-                                                        value="{{ $t->id }}"
-                                                        class="tank-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                                    >
-                                                </td>
-
-                                                <td class="px-3 py-2 text-gray-700">
-                                                    {{ $t->batch?->batch_number ?? '—' }}
-                                                </td>
-
-                                                <td class="px-3 py-2 font-semibold text-gray-900">
-                                                    {{ $t->serial }}
-                                                </td>
-
-                                                <td class="px-3 py-2 text-gray-700">
-                                                    {{ $t->gasType?->name ?? '—' }}
-                                                </td>
-
-                                                <td class="px-3 py-2 text-gray-700">
-                                                    {{ $t->capacity?->name ?? '—' }}
-                                                </td>
-
-                                                <td class="px-3 py-2 text-gray-700">
-                                                    {{ $t->warehouseArea?->name ?? '—' }}
-                                                </td>
-
-                                                <td class="px-3 py-2 text-gray-700">
-                                                    {{ $t->technicalStatus?->name ?? '—' }}
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="7" class="px-3 py-8 text-center text-gray-500">
-                                                    No hay tanques disponibles con esos filtros.
-                                                </td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div id="tanks-table-wrapper">
+                            @include('dispatches.partials.tanks_table', ['tanks' => $tanks])
                         </div>
-
-                        @if ($tanks->hasPages())
-                            <div>
-                                {{ $tanks->links() }}
-                            </div>
-                        @endif
 
                         <div id="selected-hidden-inputs"></div>
 
@@ -354,16 +282,18 @@
             const dispatchForm = document.getElementById('dispatch-form');
             const hiddenInputsContainer = document.getElementById('selected-hidden-inputs');
             const countBox = document.getElementById('selected-count');
+            const totalCountBox = document.getElementById('tanks-total-count');
             const clearSelectedBtn = document.getElementById('clear-selected-tanks');
-            const tankCheckboxes = Array.from(document.querySelectorAll('.tank-checkbox'));
             const filtersContainer = document.getElementById('tank-filters-form');
-            const applyFiltersBtn = document.getElementById('apply-tank-filters');
             const clearFiltersBtn = document.getElementById('clear-tank-filters');
             const batchFilterInput = document.getElementById('filter_batch');
             const serialFilterInput = document.getElementById('filter_serial');
             const capacityFilterInput = document.getElementById('filter_capacity_id');
+            const tableWrapper = document.getElementById('tanks-table-wrapper');
             const storageKey = 'dispatch_selected_tank_ids';
             const oldTankIds = @json($selectedOldTankIds);
+
+            let filterDebounceTimer = null;
 
             const getSelectedIds = () => {
                 try {
@@ -393,9 +323,14 @@
                 });
             };
 
+            const getTankCheckboxes = () => {
+                return Array.from(document.querySelectorAll('.tank-checkbox'));
+            };
+
             const syncVisibleCheckboxes = (ids) => {
                 const selected = new Set(ids);
-                tankCheckboxes.forEach((checkbox) => {
+
+                getTankCheckboxes().forEach((checkbox) => {
                     checkbox.checked = selected.has(String(checkbox.value));
                 });
             };
@@ -413,7 +348,7 @@
             const updateSelectionFromVisibleCheckboxes = () => {
                 const currentIds = new Set(getSelectedIds());
 
-                tankCheckboxes.forEach((checkbox) => {
+                getTankCheckboxes().forEach((checkbox) => {
                     const id = String(checkbox.value);
 
                     if (checkbox.checked) {
@@ -427,13 +362,36 @@
                 refreshSelectionUi();
             };
 
-            if (oldTankIds.length > 0) {
-                setSelectedIds(oldTankIds);
-            }
+            const bindCheckboxEvents = () => {
+                getTankCheckboxes().forEach((checkbox) => {
+                    checkbox.addEventListener('change', updateSelectionFromVisibleCheckboxes);
+                });
+            };
 
-            const applyFilters = () => {
-                if (!filtersContainer) {
+            const bindPaginationEvents = () => {
+                if (!tableWrapper) {
                     return;
+                }
+
+                const paginationLinks = tableWrapper.querySelectorAll('a[href]');
+
+                paginationLinks.forEach((link) => {
+                    link.addEventListener('click', function (event) {
+                        const url = link.getAttribute('href');
+
+                        if (!url) {
+                            return;
+                        }
+
+                        event.preventDefault();
+                        fetchFilteredTanks(url);
+                    });
+                });
+            };
+
+            const buildFilterUrl = () => {
+                if (!filtersContainer) {
+                    return window.location.pathname;
                 }
 
                 const baseUrl = filtersContainer.dataset.baseUrl || window.location.pathname;
@@ -452,38 +410,87 @@
                 }
 
                 const query = params.toString();
-                window.location.href = query ? `${baseUrl}?${query}` : baseUrl;
+
+                return query ? `${baseUrl}?${query}` : baseUrl;
             };
 
-            refreshSelectionUi();
-
-            if (applyFiltersBtn) {
-                applyFiltersBtn.addEventListener('click', applyFilters);
-            }
-
-            if (clearFiltersBtn && filtersContainer) {
-                clearFiltersBtn.addEventListener('click', function () {
-                    const baseUrl = filtersContainer.dataset.baseUrl || window.location.pathname;
-                    window.location.href = baseUrl;
-                });
-            }
-
-            [batchFilterInput, serialFilterInput, capacityFilterInput].forEach((element) => {
-                if (!element) {
+            const fetchFilteredTanks = async (url = null) => {
+                if (!tableWrapper) {
                     return;
                 }
 
-                element.addEventListener('keydown', function (event) {
-                    if (event.key === 'Enter') {
-                        event.preventDefault();
-                        applyFilters();
-                    }
-                });
-            });
+                const requestUrl = url || buildFilterUrl();
 
-            tankCheckboxes.forEach((checkbox) => {
-                checkbox.addEventListener('change', updateSelectionFromVisibleCheckboxes);
-            });
+                try {
+                    const response = await fetch(requestUrl, {
+                        method: 'GET',
+                        credentials: 'same-origin',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('No se pudo filtrar la tabla.');
+                    }
+
+                    const data = await response.json();
+
+                    tableWrapper.innerHTML = data.html ?? '';
+
+                    if (totalCountBox && typeof data.total !== 'undefined') {
+                        totalCountBox.textContent = data.total;
+                    }
+
+                    window.history.replaceState({}, '', requestUrl);
+
+                    bindCheckboxEvents();
+                    bindPaginationEvents();
+                    refreshSelectionUi();
+                } catch (error) {
+                    console.error(error);
+                }
+            };
+
+            const applyFiltersWithDebounce = () => {
+                window.clearTimeout(filterDebounceTimer);
+                filterDebounceTimer = window.setTimeout(() => {
+                    fetchFilteredTanks();
+                }, 300);
+            };
+
+            if (oldTankIds.length > 0) {
+                setSelectedIds(oldTankIds);
+            }
+
+            refreshSelectionUi();
+            bindCheckboxEvents();
+            bindPaginationEvents();
+
+            if (batchFilterInput) {
+                batchFilterInput.addEventListener('input', applyFiltersWithDebounce);
+            }
+
+            if (serialFilterInput) {
+                serialFilterInput.addEventListener('input', applyFiltersWithDebounce);
+            }
+
+            if (capacityFilterInput) {
+                capacityFilterInput.addEventListener('change', function () {
+                    fetchFilteredTanks();
+                });
+            }
+
+            if (clearFiltersBtn) {
+                clearFiltersBtn.addEventListener('click', function () {
+                    if (batchFilterInput) batchFilterInput.value = '';
+                    if (serialFilterInput) serialFilterInput.value = '';
+                    if (capacityFilterInput) capacityFilterInput.value = '';
+
+                    fetchFilteredTanks();
+                });
+            }
 
             if (clearSelectedBtn) {
                 clearSelectedBtn.addEventListener('click', function () {
@@ -559,15 +566,14 @@
                         return;
                     }
 
-                    const data = await response.json();
+                    const result = await response.json();
 
-                    if (data.found && data.client) {
-                        showSuccess(data.client);
+                    if (result?.found && result?.client) {
+                        showSuccess(result.client);
                     } else {
                         showError();
                     }
                 } catch (error) {
-                    console.error('Error buscando cliente por documento:', error);
                     showError();
                 } finally {
                     validateBtn.disabled = false;
@@ -576,7 +582,13 @@
             };
 
             validateBtn.addEventListener('click', searchClient);
-            docInput.addEventListener('input', resetClient);
+
+            docInput.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    searchClient();
+                }
+            });
         });
     </script>
 </x-app-layout>

@@ -55,6 +55,13 @@ class DispatchController extends Controller
             ->paginate(15)
             ->withQueryString();
 
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('dispatches.partials.tanks_table', compact('tanks'))->render(),
+                'total' => $tanks->total(),
+            ]);
+        }
+
         return view('dispatches.create', compact('clients', 'tanks', 'capacities'));
     }
 

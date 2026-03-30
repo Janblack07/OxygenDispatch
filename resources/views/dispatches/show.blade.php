@@ -128,4 +128,10 @@
 
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            window.sessionStorage.removeItem('dispatch_selected_tank_ids');
+        });
+    </script>
 </x-app-layout>
