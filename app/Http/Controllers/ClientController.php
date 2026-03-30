@@ -7,10 +7,37 @@ use App\Models\Client;
 
 class ClientController extends Controller
 {
-     public function index()
+    public function index(Request $request)
     {
-        $clients = Client::orderBy('id','desc')->paginate(15);
-        return view('clients.index', compact('clients'));
+        $document = trim((string) $request->query('document', ''));
+
+        $clients = Client::query()
+            ->when($document !== '', function ($query) use ($document) {
+                $query->where('document', 'like', "%{$document}%");
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(15)
+            ->withQueryString();
+
+        $searchMessage = null;
+        $searchStatus = null;
+
+        if ($document !== '') {
+            if ($clients->total() > 0) {
+                $searchStatus = 'success';
+                $searchMessage = 'Cliente encontrado.';
+            } else {
+                $searchStatus = 'error';
+                $searchMessage = 'Ese cliente no existe.';
+            }
+        }
+
+        return view('clients.index', compact(
+            'clients',
+            'document',
+            'searchMessage',
+            'searchStatus'
+        ));
     }
 
     public function create()
@@ -37,35 +64,36 @@ class ClientController extends Controller
     {
         return view('clients.edit', compact('client'));
     }
+
     public function findByDocument(Request $request)
-{
-    $request->validate([
-        'document' => ['required', 'string', 'max:50'],
-    ]);
+    {
+        $request->validate([
+            'document' => ['required', 'string', 'max:50'],
+        ]);
 
-    $document = trim($request->input('document'));
+        $document = trim($request->input('document'));
 
-    $client = \App\Models\Client::query()
-        ->select(['id', 'name', 'document'])
-        ->where('document', $document)
-        ->first();
+        $client = \App\Models\Client::query()
+            ->select(['id', 'name', 'document'])
+            ->where('document', $document)
+            ->first();
 
-    if (!$client) {
+        if (!$client) {
+            return response()->json([
+                'found' => false,
+                'message' => 'Ese cliente no existe, primero regístralo.',
+            ], 404);
+        }
+
         return response()->json([
-            'found' => false,
-            'message' => 'Ese cliente no existe, primero regístralo.',
-        ], 404);
+            'found' => true,
+            'client' => [
+                'id' => $client->id,
+                'name' => $client->name,
+                'document' => $client->document,
+            ],
+        ]);
     }
-
-    return response()->json([
-        'found' => true,
-        'client' => [
-            'id' => $client->id,
-            'name' => $client->name,
-            'document' => $client->document,
-        ],
-    ]);
-}
 
     public function update(Request $request, Client $client)
     {
