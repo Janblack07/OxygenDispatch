@@ -38,43 +38,44 @@
 
             {{-- Filtro --}}
             <div class="bg-white shadow-sm sm:rounded-lg">
-                <div class="p-4">
-                    <form method="GET" action="{{ route('clients.index') }}" class="space-y-2">
-                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-                            <div class="md:col-span-10">
-                                <label for="document" class="block text-xs text-gray-600 mb-1">
-                                    Buscar por cédula
-                                </label>
-                                <input
-                                    type="text"
-                                    name="document"
-                                    id="document"
-                                    value="{{ $document }}"
-                                    class="mt-1 block w-full rounded-md border-gray-300 text-sm py-2 px-3 leading-5 focus:border-indigo-500 focus:ring-indigo-500"
-                                    placeholder="Ej: 1311111111"
-                                    autocomplete="off"
-                                >
-                            </div>
+    <div class="p-4">
+        <form method="GET" action="{{ route('clients.index') }}" class="space-y-2">
+            <label for="document" class="block text-xs text-gray-600">
+                Buscar por cédula
+            </label>
 
-                            <div class="md:col-span-2">
-                                <button
-                                    type="submit"
-                                    class="inline-flex w-full justify-center items-center px-3 py-2 bg-gray-900 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-800"
-                                >
-                                    Filtrar
-                                </button>
-                            </div>
-                        </div>
+            <div class="flex flex-col sm:flex-row sm:items-end gap-3">
+                <div class="flex-1">
+                    <input
+                        type="text"
+                        name="document"
+                        id="document"
+                        value="{{ $document }}"
+                        class="block w-full rounded-md border-gray-300 text-sm py-2 px-3 leading-5 focus:border-indigo-500 focus:ring-indigo-500"
+                        placeholder="Ej: 1311111111"
+                        autocomplete="off"
+                    >
+                </div>
 
-                        <div class="flex justify-end">
-                            <a href="{{ route('clients.index') }}"
-                               class="text-xs text-gray-500 hover:text-gray-700">
-                                Limpiar filtros
-                            </a>
-                        </div>
-                    </form>
+                <div class="sm:w-44">
+                    <button
+                        type="submit"
+                        class="inline-flex w-full justify-center items-center px-2 py-2 bg-gray-900 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-800"
+                    >
+                        Filtrar
+                    </button>
                 </div>
             </div>
+
+            <div class="flex justify-end">
+                <a href="{{ route('clients.index') }}"
+                   class="text-xs text-gray-500 hover:text-gray-700">
+                    Limpiar filtros
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
 
             @if ($searchMessage)
                 <div class="px-4 py-3 rounded-md text-sm {{ $searchStatus === 'success' ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700' }}">
