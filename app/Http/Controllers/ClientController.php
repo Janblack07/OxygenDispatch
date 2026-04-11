@@ -10,10 +10,18 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         $document = trim((string) $request->query('document', ''));
+        $name = trim((string) $request->query('name', ''));
+        $entityType = trim((string) $request->query('entity_type', ''));
 
         $clients = Client::query()
             ->when($document !== '', function ($query) use ($document) {
                 $query->where('document', 'like', "%{$document}%");
+            })
+            ->when($name !== '', function ($query) use ($name) {
+                $query->where('name', 'like', "%{$name}%");
+            })
+            ->when($entityType !== '', function ($query) use ($entityType) {
+                $query->where('entity_type', $entityType);
             })
             ->orderBy('id', 'desc')
             ->paginate(15)
@@ -22,19 +30,21 @@ class ClientController extends Controller
         $searchMessage = null;
         $searchStatus = null;
 
-        if ($document !== '') {
+        if ($document !== '' || $name !== '' || $entityType !== '') {
             if ($clients->total() > 0) {
                 $searchStatus = 'success';
-                $searchMessage = 'Cliente encontrado.';
+                $searchMessage = 'Clientes encontrados.';
             } else {
                 $searchStatus = 'error';
-                $searchMessage = 'Ese cliente no existe.';
+                $searchMessage = 'No se encontraron clientes con esos filtros.';
             }
         }
 
         return view('clients.index', compact(
             'clients',
             'document',
+            'name',
+            'entityType',
             'searchMessage',
             'searchStatus'
         ));

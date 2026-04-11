@@ -36,53 +36,83 @@
                 </div>
             @endif
 
-            {{-- Filtro --}}
-            <div class="bg-white shadow-sm sm:rounded-lg">
-                <div class="p-4">
-                    <form method="GET" action="{{ route('clients.index') }}" class="space-y-2">
-                        <label for="document" class="block text-xs text-gray-600">
-                            Buscar por cédula
-                        </label>
+            {{-- Filtros --}}
+<div class="bg-white shadow-sm sm:rounded-lg">
+    <div class="p-4">
+        <form method="GET" action="{{ route('clients.index') }}" class="space-y-3">
 
-                        <div style="display:flex; gap:12px; align-items:end; width:100%;">
-                            <div style="flex:1 1 auto;">
-                                <input
-                                    type="text"
-                                    name="document"
-                                    id="document"
-                                    value="{{ $document }}"
-                                    class="block w-full rounded-md border-gray-300 text-sm py-2 px-3 leading-5 focus:border-indigo-500 focus:ring-indigo-500"
-                                    placeholder="Ej: 1311111111"
-                                    autocomplete="off"
-                                >
-                            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                <div class="md:col-span-4">
+                    <label for="document" class="block text-xs text-gray-600 mb-1">
+                        Buscar por cédula
+                    </label>
+                    <input
+                        type="text"
+                        name="document"
+                        id="document"
+                        value="{{ $document }}"
+                        class="block w-full rounded-md border-gray-300 text-sm py-2 px-3 leading-5 focus:border-indigo-500 focus:ring-indigo-500"
+                        placeholder="Ej: 1311111111"
+                        autocomplete="off"
+                    >
+                </div>
 
-                            <div style="width:180px; flex:0 0 180px;">
-                                <button
-                                    type="submit"
-                                    class="inline-flex w-full justify-center items-center px-3 py-2 bg-gray-900 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-800"
-                                >
-                                    Filtrar
-                                </button>
-                            </div>
-                        </div>
+                <div class="md:col-span-4">
+                    <label for="name" class="block text-xs text-gray-600 mb-1">
+                        Buscar por nombre
+                    </label>
+                    <input
+                        type="text"
+                        name="name"
+                        id="name"
+                        value="{{ $name }}"
+                        class="block w-full rounded-md border-gray-300 text-sm py-2 px-3 leading-5 focus:border-indigo-500 focus:ring-indigo-500"
+                        placeholder="Ej: Juan Perez"
+                        autocomplete="off"
+                    >
+                </div>
 
-                        <div class="flex justify-end">
-                            <a href="{{ route('clients.index') }}"
-                            class="text-xs text-gray-500 hover:text-gray-700">
-                                Limpiar filtros
-                            </a>
-                        </div>
-                    </form>
+                <div class="md:col-span-3">
+                    <label for="entity_type" class="block text-xs text-gray-600 mb-1">
+                        Tipo de cliente
+                    </label>
+                    <select
+                        name="entity_type"
+                        id="entity_type"
+                        class="block w-full rounded-md border-gray-300 text-sm py-2 px-3 leading-5 focus:border-indigo-500 focus:ring-indigo-500"
+                    >
+                        <option value="">Todos</option>
+                        @foreach (\App\Enums\EntityType::cases() as $type)
+                            <option value="{{ $type->value }}" {{ (string) $entityType === (string) $type->value ? 'selected' : '' }}>
+                                {{ $type->label() }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="md:col-span-1">
+                    <button
+                        type="submit"
+                        class="inline-flex w-full justify-center items-center px-3 py-2 bg-gray-900 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-800"
+                    >
+                        Filtrar
+                    </button>
                 </div>
             </div>
+
+            <div class="flex justify-end">
+                <a href="{{ route('clients.index') }}"
+                   class="text-xs text-gray-500 hover:text-gray-700">
+                    Limpiar filtros
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
 
             @if ($searchMessage)
                 <div class="px-4 py-3 rounded-md text-sm {{ $searchStatus === 'success' ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700' }}">
                     {{ $searchMessage }}
-                    @if ($document)
-                        <span class="ms-2 text-xs">Cédula: <strong>{{ $document }}</strong></span>
-                    @endif
                 </div>
             @endif
 
@@ -140,8 +170,8 @@
                                 @empty
                                     <tr>
                                         <td colspan="7" class="py-8 text-center text-gray-500">
-                                            @if($document)
-                                                Ese cliente no existe.
+                                            @if($document || $name || $entityType)
+                                                No se encontraron clientes con esos filtros.
                                             @else
                                                 No hay clientes registrados.
                                             @endif
