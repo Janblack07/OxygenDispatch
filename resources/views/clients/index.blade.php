@@ -46,6 +46,7 @@
                     <label for="document" class="block text-xs text-gray-600 mb-1">
                         Buscar por cédula
                     </label>
+                    
                     <input
                         type="text"
                         name="document"
