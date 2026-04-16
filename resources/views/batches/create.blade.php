@@ -84,7 +84,7 @@
                             </div>
 
                             <div>
-                                <label class="{{ $labelSm }}">Documento</label>
+                                <label class="{{ $labelSm }}">Numero de Orden</label>
                                 <input name="document_number" value="{{ old('document_number') }}" class="{{ $inputSm }}">
                                 @error('document_number') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                             </div>

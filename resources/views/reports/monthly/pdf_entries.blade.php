@@ -183,7 +183,7 @@
                     <th>Reg. sanitario</th>
                     <th>Área destino</th>
                     <th>Estado técnico</th>
-                    <th>Documento</th>
+                    <th>Numero de Orden</th>
                 </tr>
             </thead>
             <tbody>
