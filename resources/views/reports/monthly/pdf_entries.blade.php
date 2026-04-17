@@ -199,7 +199,7 @@
                         <td>{{ $tank?->sanitary_registry ?? $tank?->product?->sanitary_registry ?? '—' }}</td>
                         <td>{{ $entry->toArea?->name ?? '—' }}</td>
                         <td>{{ $tank?->technicalStatus?->name ?? '—' }}</td>
-                        <td>{{ $entry->reference_document ?? $entry->batch?->document_number ?? '—' }}</td>
+                        <td>{{ $entry->batch?->document_number ?? $entry->reference_document ?? '—' }}</td>
                     </tr>
                 @empty
                     <tr>

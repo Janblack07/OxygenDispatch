@@ -174,7 +174,11 @@
                                     </td>
 
                                     <td class="py-3 pr-4 text-gray-600 whitespace-nowrap">
-                                        {{ $m->reference_document ?? '—' }}
+                                        @if(($m->type?->value) === 1)
+                                            {{ $m->batch?->document_number ?? $m->reference_document ?? '—' }}
+                                        @else
+                                            {{ $m->reference_document ?? '—' }}
+                                        @endif
                                     </td>
 
                                     <td class="py-3 pr-4 text-gray-600 whitespace-nowrap">
