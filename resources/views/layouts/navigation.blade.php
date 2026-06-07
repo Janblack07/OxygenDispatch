@@ -1,40 +1,58 @@
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
-    <!-- Primary Navigation Menu -->
     <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex min-w-0">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="h-20 w-auto" />
+                        <x-application-logo class="h-14 w-auto" />
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden sm:-my-px sm:ms-8 sm:flex sm:items-center sm:space-x-5 whitespace-nowrap">
+                <div class="hidden sm:-my-px sm:ms-8 sm:flex sm:items-center sm:space-x-6 whitespace-nowrap">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
-                    <x-nav-link :href="route('batches.index')" :active="request()->routeIs('batches.*')">
-                        {{ __('Lotes') }}
-                    </x-nav-link>
+                    {{-- Operaciones --}}
+                    <div class="hidden sm:flex sm:items-center">
+                        <x-dropdown align="left" width="56">
+                            <x-slot name="trigger">
+                                <button class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('batches.*') || request()->routeIs('tanks.*') || request()->routeIs('dispatches.*') || request()->routeIs('clients.*') || request()->routeIs('inventory.movements') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500' }} text-sm font-medium leading-5 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
+                                    <div>{{ __('Operaciones') }}</div>
 
-                    <x-nav-link :href="route('tanks.index')" :active="request()->routeIs('tanks.*')">
-                        {{ __('Tanques') }}
-                    </x-nav-link>
+                                    <div class="ms-1">
+                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </button>
+                            </x-slot>
 
-                    <x-nav-link :href="route('dispatches.index')" :active="request()->routeIs('dispatches.*')">
-                        {{ __('Despachos') }}
-                    </x-nav-link>
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('batches.index')">
+                                    {{ __('Lotes') }}
+                                </x-dropdown-link>
 
-                    <x-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.*')">
-                        {{ __('Clientes') }}
-                    </x-nav-link>
+                                <x-dropdown-link :href="route('tanks.index')">
+                                    {{ __('Tanques') }}
+                                </x-dropdown-link>
 
-                    <x-nav-link :href="route('inventory.movements')" :active="request()->routeIs('inventory.movements')">
-                        {{ __('Movimientos') }}
-                    </x-nav-link>
+                                <x-dropdown-link :href="route('dispatches.index')">
+                                    {{ __('Despachos') }}
+                                </x-dropdown-link>
+
+                                <x-dropdown-link :href="route('clients.index')">
+                                    {{ __('Clientes') }}
+                                </x-dropdown-link>
+
+                                <x-dropdown-link :href="route('inventory.movements')">
+                                    {{ __('Movimientos') }}
+                                </x-dropdown-link>
+                            </x-slot>
+                        </x-dropdown>
+                    </div>
 
                     <x-nav-link :href="route('technical-receptions.index')" :active="request()->routeIs('technical-receptions.*')">
                         {{ __('Recepción') }}
@@ -48,7 +66,7 @@
                     <div class="hidden sm:flex sm:items-center">
                         <x-dropdown align="left" width="56">
                             <x-slot name="trigger">
-                                <button class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out whitespace-nowrap">
+                                <button class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('gas-types.*') || request()->routeIs('capacities.*') || request()->routeIs('warehouse-areas.*') || request()->routeIs('technical-statuses.*') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500' }} text-sm font-medium leading-5 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
                                     <div>{{ __('Catálogos') }}</div>
 
                                     <div class="ms-1">
@@ -93,8 +111,12 @@
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-2 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
                             <div class="flex flex-col items-start leading-tight">
-                                <span class="max-w-36 truncate">{{ Auth::user()->name }}</span>
-                                <span class="text-xs text-gray-400 max-w-36 truncate">{{ Auth::user()->role ?? 'ENCARGADO' }}</span>
+                                <span class="max-w-40 truncate">
+                                    {{ Auth::user()->name }}
+                                </span>
+                                <span class="text-xs text-gray-400 max-w-40 truncate">
+                                    {{ Auth::user()->role ?? 'ENCARGADO' }}
+                                </span>
                             </div>
 
                             <div class="ms-2">
@@ -110,13 +132,11 @@
                             {{ __('Perfil') }}
                         </x-dropdown-link>
 
-                        <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
 
                             <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
+                                onclick="event.preventDefault(); this.closest('form').submit();">
                                 {{ __('Cerrar sesión') }}
                             </x-dropdown-link>
                         </form>
@@ -126,10 +146,21 @@
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
+                <button @click="open = ! open"
+                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <path :class="{'hidden': open, 'inline-flex': ! open }"
+                              class="inline-flex"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M4 6h16M4 12h16M4 18h16" />
+                        <path :class="{'hidden': ! open, 'inline-flex': open }"
+                              class="hidden"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -142,6 +173,10 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            <div class="px-4 pt-3 pb-1 text-xs text-gray-500 uppercase tracking-wide">
+                {{ __('Operaciones') }}
+            </div>
 
             <x-responsive-nav-link :href="route('batches.index')" :active="request()->routeIs('batches.*')">
                 {{ __('Lotes') }}
@@ -171,7 +206,7 @@
                 {{ __('Reportes') }}
             </x-responsive-nav-link>
 
-            <div class="px-4 pt-2 text-xs text-gray-500 uppercase tracking-wide">
+            <div class="px-4 pt-3 pb-1 text-xs text-gray-500 uppercase tracking-wide">
                 {{ __('Catálogos') }}
             </div>
 
@@ -201,9 +236,15 @@
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-                <div class="font-medium text-xs text-gray-400">{{ Auth::user()->role ?? 'ENCARGADO' }}</div>
+                <div class="font-medium text-base text-gray-800">
+                    {{ Auth::user()->name }}
+                </div>
+                <div class="font-medium text-sm text-gray-500">
+                    {{ Auth::user()->email }}
+                </div>
+                <div class="font-medium text-xs text-gray-400">
+                    {{ Auth::user()->role ?? 'ENCARGADO' }}
+                </div>
             </div>
 
             <div class="mt-3 space-y-1">
@@ -211,13 +252,11 @@
                     {{ __('Perfil') }}
                 </x-responsive-nav-link>
 
-                <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
 
                     <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
+                        onclick="event.preventDefault(); this.closest('form').submit();">
                         {{ __('Cerrar sesión') }}
                     </x-responsive-nav-link>
                 </form>
