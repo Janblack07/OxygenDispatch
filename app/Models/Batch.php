@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\TechnicalReception;
 class Batch extends Model
 {
     //
@@ -24,4 +24,5 @@ class Batch extends Model
     public function gasType(){ return $this->belongsTo(GasType::class); }
     public function capacity(){ return $this->belongsTo(CylinderCapacity::class, 'capacity_id'); }
     public function tankUnits(){ return $this->hasMany(TankUnit::class); }
+    public function technicalReception(){return $this->hasOne(TechnicalReception::class, 'document_number', 'document_number');}
 }

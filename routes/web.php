@@ -17,6 +17,8 @@ use App\Http\Controllers\Catalog\WarehouseAreaController;
 use App\Http\Controllers\Catalog\TechnicalStatusController;
 
 use App\Http\Controllers\MonthlyReportController;
+use App\Http\Controllers\TechnicalReceptionController;
+
 Route::get('/', fn() => redirect()->route('dashboard'))->name('home');
 // Breeze - Profile routes (necesarias para navigation.blade.php)
 Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -58,6 +60,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/monthly/entries/pdf', [MonthlyReportController::class, 'entriesPdf'])->name('reports.monthly.entries.pdf');
     Route::get('/reports/monthly/exits/pdf', [MonthlyReportController::class, 'exitsPdf'])->name('reports.monthly.exits.pdf');
 
+    // Ficha técnica de recepción por número de orden/documento: batches.document_number
+    Route::get('technical-receptions/{technicalReception}/pdf', [TechnicalReceptionController::class, 'pdf'])
+        ->name('technical-receptions.pdf');
+
+    Route::resource('technical-receptions', TechnicalReceptionController::class)
+        ->except(['destroy']);
+    Route::post('technical-receptions/{technicalReception}/signed-pdf', [TechnicalReceptionController::class, 'uploadSignedPdf'])
+        ->name('technical-receptions.upload-signed-pdf');
 
     // Users protegido por roles
     Route::middleware(['role:PROGRAMADOR,ADMINISTRADOR'])->group(function () {
@@ -67,4 +77,4 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

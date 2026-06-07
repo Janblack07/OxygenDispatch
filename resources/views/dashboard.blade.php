@@ -198,10 +198,10 @@
                         <div class="bg-white border overflow-hidden shadow-sm sm:rounded-lg p-6">
                             <div class="flex items-center gap-4">
                                 <div class="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                                    <svg class="h-7 w-7 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    <svg class="h-7 w-7 text-cyan-600" xmlns="http://www.w3.org/2000/svg" fill="none"
                                          viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M3 7h18M5 7l1 12h12l1-12M10 11v4m4-4v4"/>
+                                              d="M20 13V7a2 2 0 00-2-2h-3V3H9v2H6a2 2 0 00-2 2v6m16 0v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6m16 0H4"/>
                                     </svg>
                                 </div>
                                 <div>
