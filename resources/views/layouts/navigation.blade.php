@@ -1,5 +1,5 @@
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100 shadow-sm">
-    <div class="w-full px-4 lg:px-8">
+    <div class="w-full px-4 lg:px-6">
         <div class="flex h-16 items-center justify-between">
 
             {{-- LADO IZQUIERDO --}}
@@ -8,12 +8,12 @@
                 {{-- Logo --}}
                 <div class="flex shrink-0 items-center">
                     <a href="{{ route('dashboard') }}" class="flex items-center">
-                        <x-application-logo class="h-12 w-auto object-contain" />
+                        <x-application-logo class="h-11 w-auto object-contain" />
                     </a>
                 </div>
 
                 {{-- Menú escritorio --}}
-                <div class="hidden xl:flex xl:items-center xl:ms-6 xl:gap-4 whitespace-nowrap">
+                <div class="hidden lg:flex lg:items-center lg:ms-5 lg:gap-3 xl:gap-4 whitespace-nowrap">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
@@ -100,12 +100,12 @@
             </div>
 
             {{-- LADO DERECHO --}}
-            <div class="hidden xl:flex xl:items-center xl:ms-4 shrink-0">
+            <div class="hidden lg:flex lg:items-center lg:ms-4 shrink-0">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button type="button"
-                            class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none">
-                            <div class="flex max-w-44 flex-col items-start leading-tight">
+                            class="inline-flex items-center rounded-md border border-transparent bg-white px-2 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none">
+                            <div class="flex max-w-36 xl:max-w-44 flex-col items-start leading-tight">
                                 <span class="truncate text-sm font-medium text-gray-700">
                                     {{ Auth::user()->name }}
                                 </span>
@@ -137,8 +137,8 @@
                 </x-dropdown>
             </div>
 
-            {{-- Botón móvil / tablet --}}
-            <div class="flex items-center xl:hidden">
+            {{-- Botón móvil/tablet --}}
+            <div class="flex items-center lg:hidden">
                 <button @click="open = ! open"
                     class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -162,7 +162,7 @@
     </div>
 
     {{-- Menú responsive --}}
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden xl:hidden border-t border-gray-100">
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden lg:hidden border-t border-gray-100">
         <div class="space-y-1 pb-3 pt-2">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
