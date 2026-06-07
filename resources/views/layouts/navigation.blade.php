@@ -12,7 +12,7 @@
                 </div>
 
                 {{-- Menú escritorio compacto --}}
-                <div class="hidden sm:flex sm:items-center sm:ms-4 sm:gap-3 lg:gap-4 whitespace-nowrap">
+                <div class="hidden sm:flex sm:items-center sm:ms-5 sm:gap-4 lg:gap-5 whitespace-nowrap">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
