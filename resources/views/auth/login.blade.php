@@ -1,18 +1,59 @@
 <x-guest-layout>
-    <div class="w-full max-w-md">
-        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50">
+    <div
+        class="w-full max-w-md"
+        style="width: 100%; max-width: 448px;"
+    >
+        <div
+            class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50"
+            style="
+                overflow: hidden;
+                border: 1px solid #e2e8f0;
+                border-radius: 16px;
+                background: #ffffff;
+                box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.08),
+                            0 8px 10px -6px rgba(15, 23, 42, 0.05);
+            "
+        >
 
             {{-- Encabezado --}}
-            <div class="border-b border-slate-200 bg-slate-50/70 px-6 py-4">
-                <div class="flex items-center gap-3">
-                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm shadow-indigo-200">
+            <div
+                class="border-b border-slate-200 bg-slate-50/70 px-6 py-4"
+                style="
+                    border-bottom: 1px solid #e2e8f0;
+                    background: rgba(248, 250, 252, 0.85);
+                    padding: 16px 24px;
+                "
+            >
+                <div
+                    class="flex items-center gap-3"
+                    style="
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                    "
+                >
+                    <div
+                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm shadow-indigo-200"
+                        style="
+                            width: 40px;
+                            height: 40px;
+                            flex-shrink: 0;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            border-radius: 12px;
+                            background: #4f46e5;
+                            color: #ffffff;
+                            box-shadow: 0 1px 3px rgba(79, 70, 229, 0.25);
+                        "
+                    >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
                             stroke-width="1.8"
-                            class="h-5 w-5"
+                            style="width: 20px; height: 20px;"
                         >
                             <path
                                 stroke-linecap="round"
@@ -22,12 +63,29 @@
                         </svg>
                     </div>
 
-                    <div class="min-w-0">
-                        <h1 class="text-lg font-bold tracking-tight text-slate-900">
+                    <div style="min-width: 0;">
+                        <h1
+                            class="text-lg font-bold tracking-tight text-slate-900"
+                            style="
+                                margin: 0;
+                                font-size: 18px;
+                                line-height: 1.35;
+                                font-weight: 700;
+                                color: #0f172a;
+                            "
+                        >
                             Iniciar sesión
                         </h1>
 
-                        <p class="mt-0.5 text-sm text-slate-500">
+                        <p
+                            class="mt-0.5 text-sm text-slate-500"
+                            style="
+                                margin: 2px 0 0;
+                                font-size: 14px;
+                                line-height: 1.45;
+                                color: #64748b;
+                            "
+                        >
                             Ingresa tus credenciales para acceder al sistema interno.
                         </p>
                     </div>
@@ -35,19 +93,43 @@
             </div>
 
             {{-- Contenido --}}
-            <div class="px-6 py-5">
+            <div
+                class="px-6 py-5"
+                style="padding: 20px 24px;"
+            >
 
                 {{-- Estado de sesión --}}
                 @if(session('status'))
-                    <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-                        <div class="flex items-start gap-3">
+                    <div
+                        class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3"
+                        style="
+                            margin-bottom: 16px;
+                            padding: 12px 16px;
+                            border: 1px solid #a7f3d0;
+                            border-radius: 12px;
+                            background: #ecfdf5;
+                        "
+                    >
+                        <div
+                            style="
+                                display: flex;
+                                align-items: flex-start;
+                                gap: 12px;
+                            "
+                        >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
                                 stroke-width="2"
-                                class="mt-0.5 h-5 w-5 shrink-0 text-emerald-600"
+                                style="
+                                    width: 20px;
+                                    height: 20px;
+                                    flex-shrink: 0;
+                                    margin-top: 2px;
+                                    color: #059669;
+                                "
                             >
                                 <path
                                     stroke-linecap="round"
@@ -62,17 +144,30 @@
                                 />
                             </svg>
 
-                            <p class="text-sm font-medium text-emerald-800">
+                            <p
+                                style="
+                                    margin: 0;
+                                    font-size: 14px;
+                                    font-weight: 500;
+                                    color: #065f46;
+                                "
+                            >
                                 {{ session('status') }}
                             </p>
                         </div>
                     </div>
                 @endif
 
-                <form method="POST"
-                      action="{{ route('login') }}"
-                      class="space-y-4">
-
+                <form
+                    method="POST"
+                    action="{{ route('login') }}"
+                    class="space-y-4"
+                    style="
+                        display: flex;
+                        flex-direction: column;
+                        gap: 16px;
+                    "
+                >
                     @csrf
 
                     {{-- Correo --}}
@@ -80,19 +175,43 @@
                         <label
                             for="email"
                             class="mb-1.5 block text-sm font-semibold text-slate-700"
+                            style="
+                                display: block;
+                                margin-bottom: 6px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                color: #334155;
+                            "
                         >
                             Correo electrónico
                         </label>
 
-                        <div class="relative">
-                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                        <div
+                            class="relative"
+                            style="position: relative;"
+                        >
+                            <div
+                                class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5"
+                                style="
+                                    position: absolute;
+                                    inset: 0 auto 0 0;
+                                    display: flex;
+                                    align-items: center;
+                                    padding-left: 14px;
+                                    pointer-events: none;
+                                "
+                            >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
                                     stroke-width="1.8"
-                                    class="h-5 w-5 text-slate-400"
+                                    style="
+                                        width: 20px;
+                                        height: 20px;
+                                        color: #94a3b8;
+                                    "
                                 >
                                     <path
                                         stroke-linecap="round"
@@ -113,18 +232,45 @@
                                 placeholder="nombre@empresa.com"
                                 class="block w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-11 pr-4 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10
                                 @error('email') border-red-300 focus:border-red-500 focus:ring-red-500/10 @enderror"
+                                style="
+                                    width: 100%;
+                                    box-sizing: border-box;
+                                    border: 1px solid {{ $errors->has('email') ? '#fca5a5' : '#cbd5e1' }};
+                                    border-radius: 12px;
+                                    background: #ffffff;
+                                    padding: 10px 16px 10px 44px;
+                                    font-size: 14px;
+                                    line-height: 1.5;
+                                    color: #0f172a;
+                                    outline: none;
+                                    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+                                "
                             >
                         </div>
 
                         @error('email')
-                            <div class="mt-1.5 flex items-start gap-2 text-xs text-red-600">
+                            <div
+                                style="
+                                    margin-top: 6px;
+                                    display: flex;
+                                    align-items: flex-start;
+                                    gap: 8px;
+                                    font-size: 12px;
+                                    color: #dc2626;
+                                "
+                            >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
                                     stroke-width="2"
-                                    class="mt-0.5 h-4 w-4 shrink-0"
+                                    style="
+                                        width: 16px;
+                                        height: 16px;
+                                        flex-shrink: 0;
+                                        margin-top: 1px;
+                                    "
                                 >
                                     <path
                                         stroke-linecap="round"
@@ -140,10 +286,24 @@
 
                     {{-- Contraseña --}}
                     <div x-data="{ showPassword: false }">
-                        <div class="mb-1.5 flex items-center justify-between gap-3">
+                        <div
+                            class="mb-1.5 flex items-center justify-between gap-3"
+                            style="
+                                margin-bottom: 6px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: space-between;
+                                gap: 12px;
+                            "
+                        >
                             <label
                                 for="password"
                                 class="block text-sm font-semibold text-slate-700"
+                                style="
+                                    font-size: 14px;
+                                    font-weight: 600;
+                                    color: #334155;
+                                "
                             >
                                 Contraseña
                             </label>
@@ -152,21 +312,44 @@
                                 <a
                                     href="{{ route('password.request') }}"
                                     class="text-xs font-semibold text-indigo-600 transition hover:text-indigo-700 hover:underline"
+                                    style="
+                                        font-size: 12px;
+                                        font-weight: 600;
+                                        color: #4f46e5;
+                                        text-decoration: none;
+                                    "
                                 >
                                     ¿Olvidaste tu contraseña?
                                 </a>
                             @endif
                         </div>
 
-                        <div class="relative">
-                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                        <div
+                            class="relative"
+                            style="position: relative;"
+                        >
+                            <div
+                                class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5"
+                                style="
+                                    position: absolute;
+                                    inset: 0 auto 0 0;
+                                    display: flex;
+                                    align-items: center;
+                                    padding-left: 14px;
+                                    pointer-events: none;
+                                "
+                            >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
                                     stroke-width="1.8"
-                                    class="h-5 w-5 text-slate-400"
+                                    style="
+                                        width: 20px;
+                                        height: 20px;
+                                        color: #94a3b8;
+                                    "
                                 >
                                     <path
                                         stroke-linecap="round"
@@ -185,13 +368,39 @@
                                 placeholder="Ingresa tu contraseña"
                                 class="block w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-11 pr-12 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10
                                 @error('password') border-red-300 focus:border-red-500 focus:ring-red-500/10 @enderror"
+                                style="
+                                    width: 100%;
+                                    box-sizing: border-box;
+                                    border: 1px solid {{ $errors->has('password') ? '#fca5a5' : '#cbd5e1' }};
+                                    border-radius: 12px;
+                                    background: #ffffff;
+                                    padding: 10px 48px 10px 44px;
+                                    font-size: 14px;
+                                    line-height: 1.5;
+                                    color: #0f172a;
+                                    outline: none;
+                                    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+                                "
                             >
 
                             <button
                                 type="button"
                                 @click="showPassword = !showPassword"
-                                class="absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-400 transition hover:text-slate-600 focus:outline-none"
                                 :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                                style="
+                                    position: absolute;
+                                    top: 0;
+                                    right: 0;
+                                    bottom: 0;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    padding: 0 14px;
+                                    border: 0;
+                                    background: transparent;
+                                    color: #94a3b8;
+                                    cursor: pointer;
+                                "
                             >
                                 <svg
                                     x-show="!showPassword"
@@ -200,7 +409,7 @@
                                     fill="none"
                                     stroke="currentColor"
                                     stroke-width="1.8"
-                                    class="h-5 w-5"
+                                    style="width: 20px; height: 20px;"
                                 >
                                     <path
                                         stroke-linecap="round"
@@ -223,7 +432,7 @@
                                     fill="none"
                                     stroke="currentColor"
                                     stroke-width="1.8"
-                                    class="h-5 w-5"
+                                    style="width: 20px; height: 20px;"
                                 >
                                     <path
                                         stroke-linecap="round"
@@ -235,14 +444,28 @@
                         </div>
 
                         @error('password')
-                            <div class="mt-1.5 flex items-start gap-2 text-xs text-red-600">
+                            <div
+                                style="
+                                    margin-top: 6px;
+                                    display: flex;
+                                    align-items: flex-start;
+                                    gap: 8px;
+                                    font-size: 12px;
+                                    color: #dc2626;
+                                "
+                            >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
                                     stroke-width="2"
-                                    class="mt-0.5 h-4 w-4 shrink-0"
+                                    style="
+                                        width: 16px;
+                                        height: 16px;
+                                        flex-shrink: 0;
+                                        margin-top: 1px;
+                                    "
                                 >
                                     <path
                                         stroke-linecap="round"
@@ -259,16 +482,32 @@
                     {{-- Recordarme --}}
                     <label
                         for="remember_me"
-                        class="flex cursor-pointer items-center gap-3"
+                        style="
+                            display: flex;
+                            align-items: center;
+                            gap: 12px;
+                            cursor: pointer;
+                        "
                     >
                         <input
                             id="remember_me"
                             type="checkbox"
                             name="remember"
-                            class="h-4 w-4 rounded border-slate-300 text-indigo-600 shadow-sm focus:ring-2 focus:ring-indigo-500/30"
+                            style="
+                                width: 16px;
+                                height: 16px;
+                                margin: 0;
+                                accent-color: #4f46e5;
+                                cursor: pointer;
+                            "
                         >
 
-                        <span class="text-sm text-slate-600">
+                        <span
+                            style="
+                                font-size: 14px;
+                                color: #475569;
+                            "
+                        >
                             Mantener mi sesión iniciada
                         </span>
                     </label>
@@ -277,6 +516,23 @@
                     <button
                         type="submit"
                         class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-indigo-200 transition hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 disabled:pointer-events-none disabled:opacity-50"
+                        style="
+                            width: 100%;
+                            box-sizing: border-box;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 8px;
+                            border: 0;
+                            border-radius: 12px;
+                            background: #4f46e5;
+                            padding: 10px 16px;
+                            font-size: 14px;
+                            font-weight: 600;
+                            color: #ffffff;
+                            cursor: pointer;
+                            box-shadow: 0 1px 3px rgba(79, 70, 229, 0.25);
+                        "
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -284,7 +540,7 @@
                             fill="none"
                             stroke="currentColor"
                             stroke-width="1.8"
-                            class="h-5 w-5"
+                            style="width: 20px; height: 20px;"
                         >
                             <path
                                 stroke-linecap="round"
@@ -299,8 +555,22 @@
             </div>
 
             {{-- Footer --}}
-            <div class="border-t border-slate-200 bg-slate-50/70 px-6 py-3 text-center">
-                <p class="text-xs text-slate-500">
+            <div
+                class="border-t border-slate-200 bg-slate-50/70 px-6 py-3 text-center"
+                style="
+                    border-top: 1px solid #e2e8f0;
+                    background: rgba(248, 250, 252, 0.85);
+                    padding: 12px 24px;
+                    text-align: center;
+                "
+            >
+                <p
+                    style="
+                        margin: 0;
+                        font-size: 12px;
+                        color: #64748b;
+                    "
+                >
                     Sistema de gestión y trazabilidad de oxígeno medicinal
                 </p>
             </div>

@@ -3,37 +3,128 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
 
-    <title>{{ config('app.name', 'Oxygen Dispatch') }}</title>
+    <meta
+        name="csrf-token"
+        content="{{ csrf_token() }}"
+    >
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <title>
+        {{ config('app.name', 'Oxygen Dispatch') }}
+    </title>
+
+    @vite([
+        'resources/css/app.css',
+        'resources/js/app.js'
+    ])
 
     <style>
         [x-cloak] {
             display: none !important;
         }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+        }
+
+        body {
+            background: #f8fafc;
+        }
+
+        .guest-page {
+            min-height: 100vh;
+            min-height: 100dvh;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            padding: 12px 16px;
+
+            box-sizing: border-box;
+        }
+
+        .guest-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            margin-bottom: 8px;
+        }
+
+        .guest-logo svg,
+        .guest-logo img {
+            width: auto;
+            height: 112px;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
+        .guest-content {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        @media (max-height: 720px) {
+            .guest-page {
+                justify-content: flex-start;
+                padding-top: 8px;
+                padding-bottom: 8px;
+            }
+
+            .guest-logo {
+                margin-bottom: 4px;
+            }
+
+            .guest-logo svg,
+            .guest-logo img {
+                height: 84px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .guest-page {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+
+            .guest-logo svg,
+            .guest-logo img {
+                height: 88px;
+            }
+        }
     </style>
 </head>
 
 <body class="font-sans antialiased">
-    <main class="min-h-screen bg-slate-50">
-        <div class="mx-auto flex min-h-screen w-full flex-col items-center justify-center px-4 py-4">
 
-            {{-- Logo --}}
-            <a href="/" class="mb-2 inline-flex items-center justify-center">
-                <x-application-logo class="h-24 w-auto object-contain sm:h-28" />
-            </a>
+    <main class="guest-page">
 
-            {{-- Contenido --}}
-            <div class="flex w-full justify-center">
-                {{ $slot }}
-            </div>
+        {{-- Logo --}}
+        <a
+            href="/"
+            class="guest-logo"
+            aria-label="Inicio"
+        >
+            <x-application-logo />
+        </a>
 
+        {{-- Contenido --}}
+        <div class="guest-content">
+            {{ $slot }}
         </div>
+
     </main>
+
 </body>
 
 </html>
