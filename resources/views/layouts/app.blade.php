@@ -1,36 +1,125 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+<head>
+    <meta charset="utf-8">
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+    <meta
+        name="csrf-token"
+        content="{{ csrf_token() }}"
+    >
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+    <title>{{ config('app.name', 'Oxygen Dispatch') }}</title>
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
-        </div>
-    </body>
+    {{-- Fuente --}}
+    <link rel="preconnect" href="https://fonts.bunny.net">
+
+    <link
+        href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap"
+        rel="stylesheet"
+    >
+
+    {{-- Assets --}}
+    @vite([
+        'resources/css/app.css',
+        'resources/js/app.js'
+    ])
+
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        html {
+            min-height: 100%;
+            background: #f8fafc;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #f8fafc;
+            color: #0f172a;
+            font-family: 'Figtree', sans-serif;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        .app-shell {
+            min-height: 100vh;
+            background: #f8fafc;
+        }
+
+        .app-header {
+            position: relative;
+            z-index: 20;
+            width: 100%;
+            border-bottom: 1px solid #e2e8f0;
+            background: #ffffff;
+        }
+
+        .app-header-inner {
+            width: 100%;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 18px 16px;
+        }
+
+        .app-main {
+            position: relative;
+            width: 100%;
+            min-height: calc(100vh - 128px);
+            background: #f8fafc;
+        }
+
+        @media (min-width: 640px) {
+            .app-header-inner {
+                padding-left: 24px;
+                padding-right: 24px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .app-header-inner {
+                padding-left: 0;
+                padding-right: 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="font-sans antialiased">
+
+    <div class="app-shell">
+
+        {{-- Navbar --}}
+        @include('layouts.navigation')
+
+        {{-- Encabezado de página --}}
+        @isset($header)
+            <header class="app-header">
+                <div class="app-header-inner">
+                    {{ $header }}
+                </div>
+            </header>
+        @endisset
+
+        {{-- Contenido --}}
+        <main class="app-main">
+            {{ $slot }}
+        </main>
+
+    </div>
+
+</body>
+
 </html>
