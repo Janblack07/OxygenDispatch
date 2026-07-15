@@ -27,6 +27,10 @@
                     class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500">
                     Editar
                 </a>
+                <a href="{{ route('technical-receptions.tank-reviews.index', $technicalReception) }}"
+                    class="inline-flex items-center justify-center px-4 py-2 bg-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-500">
+                    Revisar tanques
+                </a>
 
                 <a href="{{ route('technical-receptions.index') }}"
                     class="inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50">
@@ -199,69 +203,66 @@
                 </div>
             </div>
             <div class="bg-white shadow-sm sm:rounded-lg border border-gray-100">
-    <div class="p-5 border-b border-gray-100">
-        <h3 class="text-base font-semibold text-gray-900">
-            PDF firmado y sellado
-        </h3>
-        <p class="text-sm text-gray-500 mt-1">
-            Sube aquí el PDF final firmado y sellado por el responsable técnico.
-        </p>
-    </div>
-
-    <div class="p-5 space-y-4">
-        @if($technicalReception->signed_pdf_path)
-            <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-lg text-sm">
-                <div class="font-semibold">PDF firmado cargado correctamente.</div>
-                <div class="mt-1">
-                    Subido por: {{ $technicalReception->signed_pdf_uploaded_by ?: '—' }}
-                </div>
-                <div>
-                    Fecha: {{ $technicalReception->signed_pdf_uploaded_at?->format('Y-m-d H:i') ?: '—' }}
+                <div class="p-5 border-b border-gray-100">
+                    <h3 class="text-base font-semibold text-gray-900">
+                        PDF firmado y sellado
+                    </h3>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Sube aquí el PDF final firmado y sellado por el responsable técnico.
+                    </p>
                 </div>
 
-                <div class="mt-3">
-                    <a href="{{ asset('storage/' . $technicalReception->signed_pdf_path) }}"
-                       target="_blank"
-                       class="inline-flex items-center px-4 py-2 bg-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-500">
-                        Ver PDF firmado
-                    </a>
+                <div class="p-5 space-y-4">
+                    @if ($technicalReception->signed_pdf_path)
+                        <div
+                            class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-lg text-sm">
+                            <div class="font-semibold">PDF firmado cargado correctamente.</div>
+                            <div class="mt-1">
+                                Subido por: {{ $technicalReception->signed_pdf_uploaded_by ?: '—' }}
+                            </div>
+                            <div>
+                                Fecha: {{ $technicalReception->signed_pdf_uploaded_at?->format('Y-m-d H:i') ?: '—' }}
+                            </div>
+
+                            <div class="mt-3">
+                                <a href="{{ asset('storage/' . $technicalReception->signed_pdf_path) }}"
+                                    target="_blank"
+                                    class="inline-flex items-center px-4 py-2 bg-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-500">
+                                    Ver PDF firmado
+                                </a>
+                            </div>
+                        </div>
+                    @else
+                        <div class="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm">
+                            Todavía no se ha subido el PDF firmado.
+                        </div>
+                    @endif
+
+                    <form method="POST"
+                        action="{{ route('technical-receptions.upload-signed-pdf', $technicalReception) }}"
+                        enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        @csrf
+
+                        <div class="md:col-span-3">
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">
+                                PDF firmado
+                            </label>
+                            <input type="file" name="signed_pdf" accept="application/pdf" required
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                            <p class="text-xs text-gray-500 mt-1">
+                                Formato permitido: PDF. Tamaño máximo: 10 MB.
+                            </p>
+                        </div>
+
+                        <div>
+                            <button type="submit"
+                                class="w-full inline-flex items-center justify-center px-4 py-2 bg-gray-900 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
+                                Subir PDF
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        @else
-            <div class="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm">
-                Todavía no se ha subido el PDF firmado.
-            </div>
-        @endif
-
-        <form method="POST"
-              action="{{ route('technical-receptions.upload-signed-pdf', $technicalReception) }}"
-              enctype="multipart/form-data"
-              class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            @csrf
-
-            <div class="md:col-span-3">
-                <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">
-                    PDF firmado
-                </label>
-                <input type="file"
-                       name="signed_pdf"
-                       accept="application/pdf"
-                       required
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                <p class="text-xs text-gray-500 mt-1">
-                    Formato permitido: PDF. Tamaño máximo: 10 MB.
-                </p>
-            </div>
-
-            <div>
-                <button type="submit"
-                        class="w-full inline-flex items-center justify-center px-4 py-2 bg-gray-900 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
-                    Subir PDF
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
             <div class="bg-white shadow-sm sm:rounded-lg border border-gray-100">
                 <div class="p-5 border-b border-gray-100">
                     <h3 class="text-base font-semibold text-gray-900">

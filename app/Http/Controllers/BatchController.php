@@ -2,240 +2,548 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\MovementType;
 use App\Models\Batch;
 use App\Models\CatalogProduct;
 use App\Models\CylinderCapacity;
 use App\Models\GasType;
-use App\Models\TankUnit;
-use App\Services\BatchService;
-use App\Models\WarehouseArea;
-use App\Models\TechnicalStatus;
-use App\Enums\MovementType;
 use App\Models\InventoryMovement;
+use App\Models\TankUnit;
+use App\Models\TechnicalStatus;
+use App\Models\WarehouseArea;
+use App\Services\BatchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class BatchController extends Controller
 {
-    public function __construct(private readonly BatchService $batchService) {}
+    public function __construct(
+        private readonly BatchService $batchService
+    ) {}
 
     public function index(Request $request)
     {
-        $q = Batch::with(['gasType','capacity'])->orderByDesc('created_at');
+        $q = Batch::with([
+            'gasType',
+            'capacity',
+        ])->orderByDesc('created_at');
 
         if ($request->filled('q')) {
             $term = $request->input('q');
-            $q->where(function($qq) use ($term) {
+
+            $q->where(function ($qq) use ($term) {
                 $qq->where('batch_number', 'like', "%{$term}%")
                     ->orWhere('document_number', 'like', "%{$term}%");
             });
         }
 
-        // OJO: si mantienes filtros por gas/capacidad en batches.index, déjalos.
-        // En Opción B real, estos filtros son "referenciales", no obligatorios.
-        if ($request->filled('gas_type_id')) $q->where('gas_type_id', (int)$request->input('gas_type_id'));
-        if ($request->filled('capacity_id')) $q->where('capacity_id', (int)$request->input('capacity_id'));
+        /*
+         * Si mantienes filtros por gas/capacidad en batches.index,
+         * se conservan como filtros referenciales.
+         */
+        if ($request->filled('gas_type_id')) {
+            $q->where(
+                'gas_type_id',
+                (int) $request->input('gas_type_id')
+            );
+        }
 
-        $batches = $q->paginate(15)->withQueryString();
+        if ($request->filled('capacity_id')) {
+            $q->where(
+                'capacity_id',
+                (int) $request->input('capacity_id')
+            );
+        }
+
+        $batches = $q
+            ->paginate(15)
+            ->withQueryString();
 
         return view('batches.index', [
             'batches' => $batches,
-            'gasTypes' => GasType::orderBy('name')->get(),
-            'capacities' => CylinderCapacity::orderBy('name')->get(),
+
+            'gasTypes' => GasType::query()
+                ->orderBy('name')
+                ->get(),
+
+            'capacities' => CylinderCapacity::query()
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
     public function create()
     {
         return view('batches.create', [
-            'gasTypes' => GasType::orderBy('name')->get(),
-            'capacities' => CylinderCapacity::orderBy('name')->get(),
+            'gasTypes' => GasType::query()
+                ->orderBy('name')
+                ->get(),
+
+            'capacities' => CylinderCapacity::query()
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
     public function store(Request $request)
     {
-        // Opción B: el lote PUEDE no tener gas/capacidad (porque eso va por tanque/producto).
+        /*
+         * Opción B:
+         *
+         * El lote puede no tener gas/capacidad porque esos datos
+         * pertenecen realmente a cada producto/tanque.
+         */
         $data = $request->validate([
-            'batch_number' => ['required','string','max:100','unique:batches,batch_number'],
+            'batch_number' => [
+                'required',
+                'string',
+                'max:100',
+                'unique:batches,batch_number',
+            ],
 
-            'gas_type_id' => ['nullable','integer','exists:gas_types,id'],
-            'capacity_id' => ['nullable','integer','exists:cylinder_capacities,id'],
+            'gas_type_id' => [
+                'nullable',
+                'integer',
+                'exists:gas_types,id',
+            ],
 
-            'received_at' => ['required','date'],
-            'document_number' => ['nullable','string','max:100'],
-            'notes' => ['nullable','string'],
+            'capacity_id' => [
+                'nullable',
+                'integer',
+                'exists:cylinder_capacities,id',
+            ],
 
-            'supplier_name' => ['nullable','string','max:200'],
-            'supplier_code' => ['nullable','string','max:100'],
-            'voucher_type' => ['nullable','string','max:50'],
-            'voucher_number' => ['nullable','string','max:100'],
-            'voucher_date' => ['nullable','date'],
+            'received_at' => [
+                'required',
+                'date',
+            ],
 
-            // En Opción B, sanitario va por producto. Si quieres conservarlo en lote como "referencial", ok:
-            'sanitary_registry' => ['nullable','string','max:100'],
+            'document_number' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
 
-            'manufactured_at' => ['nullable','date'],
-            'expires_at' => ['nullable','date'],
+            'notes' => [
+                'nullable',
+                'string',
+            ],
+
+            'supplier_name' => [
+                'nullable',
+                'string',
+                'max:200',
+            ],
+
+            'supplier_code' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+
+            'voucher_type' => [
+                'nullable',
+                'string',
+                'max:50',
+            ],
+
+            'voucher_number' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+
+            'voucher_date' => [
+                'nullable',
+                'date',
+            ],
+
+            /*
+             * En Opción B el registro sanitario debería pertenecer
+             * al producto. Se mantiene aquí como dato referencial.
+             */
+            'sanitary_registry' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+
+            'manufactured_at' => [
+                'nullable',
+                'date',
+            ],
+
+            'expires_at' => [
+                'nullable',
+                'date',
+            ],
         ]);
 
         $data['created_by_user_email'] = $request->user()->email;
 
         $batch = Batch::create($data);
 
-        return redirect()->route('batches.show', $batch)->with('success','Lote creado.');
+        return redirect()
+            ->route('batches.show', $batch)
+            ->with(
+                'success',
+                'Lote creado.'
+            );
     }
 
-   public function show(Batch $batch)
-{
-    $batch->load([
-        'gasType','capacity',
-        'tankUnits.product.capacity',
-        'tankUnits.warehouseArea',
-        'tankUnits.technicalStatus',
-    ]);
+    public function show(Batch $batch)
+    {
+        $batch->load([
+            'gasType',
+            'capacity',
+            'tankUnits.product.capacity',
+            'tankUnits.warehouseArea',
+            'tankUnits.technicalStatus',
+        ]);
 
-    $areas = \App\Models\WarehouseArea::orderBy('name')->get();
-    $techStatuses = \App\Models\TechnicalStatus::orderBy('name')->get();
-    $products = \App\Models\CatalogProduct::with('capacity')->orderBy('detail')->get();
+        /*
+         * Los mantenemos porque pueden seguir utilizándose
+         * en otras acciones de la vista del lote.
+         */
+        $areas = WarehouseArea::query()
+            ->orderBy('name')
+            ->get();
 
-    return view('batches.show', compact('batch','areas','techStatuses','products'));
-}
+        $techStatuses = TechnicalStatus::query()
+            ->orderBy('name')
+            ->get();
+
+        $products = CatalogProduct::query()
+            ->with('capacity')
+            ->orderBy('detail')
+            ->get();
+
+        return view(
+            'batches.show',
+            compact(
+                'batch',
+                'areas',
+                'techStatuses',
+                'products'
+            )
+        );
+    }
 
     public function edit(Batch $batch)
     {
         return view('batches.edit', [
             'batch' => $batch,
-            'gasTypes' => GasType::orderBy('name')->get(),
-            'capacities' => CylinderCapacity::orderBy('name')->get(),
+
+            'gasTypes' => GasType::query()
+                ->orderBy('name')
+                ->get(),
+
+            'capacities' => CylinderCapacity::query()
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
     public function update(Request $request, Batch $batch)
     {
         $data = $request->validate([
-            'batch_number' => ['required','string','max:100','unique:batches,batch_number,'.$batch->id],
+            'batch_number' => [
+                'required',
+                'string',
+                'max:100',
+                'unique:batches,batch_number,' . $batch->id,
+            ],
 
-            'gas_type_id' => ['nullable','integer','exists:gas_types,id'],
-            'capacity_id' => ['nullable','integer','exists:cylinder_capacities,id'],
+            'gas_type_id' => [
+                'nullable',
+                'integer',
+                'exists:gas_types,id',
+            ],
 
-            'received_at' => ['required','date'],
-            'document_number' => ['nullable','string','max:100'],
-            'notes' => ['nullable','string'],
+            'capacity_id' => [
+                'nullable',
+                'integer',
+                'exists:cylinder_capacities,id',
+            ],
 
-            'supplier_name' => ['nullable','string','max:200'],
-            'supplier_code' => ['nullable','string','max:100'],
-            'voucher_type' => ['nullable','string','max:50'],
-            'voucher_number' => ['nullable','string','max:100'],
-            'voucher_date' => ['nullable','date'],
+            'received_at' => [
+                'required',
+                'date',
+            ],
 
-            'sanitary_registry' => ['nullable','string','max:100'],
-            'manufactured_at' => ['nullable','date'],
-            'expires_at' => ['nullable','date'],
+            'document_number' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+
+            'notes' => [
+                'nullable',
+                'string',
+            ],
+
+            'supplier_name' => [
+                'nullable',
+                'string',
+                'max:200',
+            ],
+
+            'supplier_code' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+
+            'voucher_type' => [
+                'nullable',
+                'string',
+                'max:50',
+            ],
+
+            'voucher_number' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+
+            'voucher_date' => [
+                'nullable',
+                'date',
+            ],
+
+            'sanitary_registry' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+
+            'manufactured_at' => [
+                'nullable',
+                'date',
+            ],
+
+            'expires_at' => [
+                'nullable',
+                'date',
+            ],
         ]);
 
         $batch->update($data);
 
-        return redirect()->route('batches.show', $batch)->with('success','Lote actualizado.');
+        return redirect()
+            ->route('batches.show', $batch)
+            ->with(
+                'success',
+                'Lote actualizado.'
+            );
     }
 
     public function destroy(Batch $batch)
     {
         $batch->delete();
-        return redirect()->route('batches.index')->with('success','Lote eliminado.');
+
+        return redirect()
+            ->route('batches.index')
+            ->with(
+                'success',
+                'Lote eliminado.'
+            );
     }
 
+    /**
+     * Genera tanques nuevos para un lote.
+     *
+     * Regla obligatoria:
+     *
+     * Todo tanque nuevo inicia en:
+     * - Área: Recepción
+     * - Estado técnico: Pendiente
+     *
+     * El usuario no puede elegir estos dos valores.
+     */
     public function generateTanks(Request $request, Batch $batch)
     {
-    $data = $request->validate([
-        'quantity' => 'required|integer|min:1|max:5000',
-        'warehouse_area_id' => 'required|exists:warehouse_areas,id',
-        'technical_status_id' => 'required|exists:technical_statuses,id',
-        'product_id' => 'required|exists:catalog_products,id',
-        'serial_prefix' => 'nullable|string|max:10',
-    ]);
+        $data = $request->validate([
+            'quantity' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:5000',
+            ],
 
-    $product = CatalogProduct::findOrFail($data['product_id']);
-    $area = WarehouseArea::findOrFail($data['warehouse_area_id']);
-    $technicalStatus = TechnicalStatus::findOrFail($data['technical_status_id']);
+            'product_id' => [
+                'required',
+                'integer',
+                'exists:catalog_products,id',
+            ],
 
-    $areaName = mb_strtolower(trim($area->name));
-    $techName = mb_strtolower(trim($technicalStatus->name));
+            'serial_prefix' => [
+                'nullable',
+                'string',
+                'max:10',
+                'regex:/^[A-Za-z0-9_-]+$/',
+            ],
+        ], [
+            'quantity.required' => 'La cantidad es obligatoria.',
+            'quantity.integer' => 'La cantidad debe ser un número entero.',
+            'quantity.min' => 'Debes generar al menos un tanque.',
+            'quantity.max' => 'No puedes generar más de 5000 tanques por operación.',
 
-    // Reglas operativas mínimas según tus áreas
-    if ($areaName === 'despacho') {
-        return back()
-            ->withInput()
-            ->withErrors([
-                'warehouse_area_id' => 'No se deben generar tanques directamente en el área de despacho.',
-            ]);
-    }
+            'product_id.required' => 'Debes seleccionar un producto.',
+            'product_id.exists' => 'El producto seleccionado no existe.',
 
-    if (
-        in_array($techName, ['pendiente'], true) &&
-        in_array($areaName, ['productos aprobados', 'área de productos aprobados'], true)
-    ) {
-        return back()
-            ->withInput()
-            ->withErrors([
-                'warehouse_area_id' => 'Un tanque pendiente no debe ingresar directamente al área de productos aprobados.',
-            ]);
-    }
+            'serial_prefix.max' => 'El prefijo no puede superar los 10 caracteres.',
+            'serial_prefix.regex' => 'El prefijo solo puede contener letras, números, guiones y guion bajo.',
+        ]);
 
-    if (
-        in_array($techName, ['rechazado'], true) &&
-        !in_array($areaName, [
-            'rechazos',
-            'devoluciones',
-            'retiro del mercado',
-            'rechazos, devoluciones y retiro del mercado',
-            'área para rechazos, devoluciones y retiro del mercado',
-        ], true)
-    ) {
-        return back()
-            ->withInput()
-            ->withErrors([
-                'warehouse_area_id' => 'Si el estado técnico es rechazado, el tanque debe ir al área de rechazos/devoluciones.',
-            ]);
-    }
+        $product = CatalogProduct::findOrFail(
+            $data['product_id']
+        );
 
-    DB::transaction(function () use ($data, $batch, $product, $area, $technicalStatus, $request) {
-        for ($i = 0; $i < $data['quantity']; $i++) {
-            [$serial, $prefix, $num] = $this->generateSerial($data['serial_prefix'] ?? null);
+        /*
+         * IMPORTANTE:
+         *
+         * El área y el estado técnico se resuelven en backend.
+         * Nunca confiamos en valores enviados desde el formulario.
+         */
+        $receptionArea = WarehouseArea::query()
+            ->where('name', 'Recepción')
+            ->first();
 
-            $tank = TankUnit::create([
-                'batch_id' => $batch->id,
-                'product_id' => $product->id,
-                'gas_type_id' => $product->gas_type_id,
-                'capacity_id' => $product->capacity_id,
-                'warehouse_area_id' => $area->id,
-                'technical_status_id' => $technicalStatus->id,
-                'serial' => $serial,
-                'serial_prefix' => $prefix,
-                'serial_number' => $num,
-            ]);
-
-            InventoryMovement::create([
-                'type' => MovementType::ENTRADA,
-                'occurred_at' => now(),
-                'tank_unit_id' => $tank->id,
-                'from_area_id' => null,
-                'to_area_id' => $area->id,
-                'batch_id' => $batch->id,
-                'reference_document' => $batch->document_number,
-                'performed_by_user_email' => $request->user()->email,
-                'notes' => "Ingreso inicial desde lote {$batch->batch_number}",
-            ]);
+        if (! $receptionArea) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'quantity' => 'No existe el área "Recepción" en el catálogo. Debes crearla antes de generar tanques.',
+                ]);
         }
-    });
 
-    return back()->with('success', 'Tanques generados correctamente y movimientos de entrada registrados.');
-}
+        $pendingTechnicalStatus = TechnicalStatus::query()
+            ->where('name', 'Pendiente')
+            ->first();
 
+        if (! $pendingTechnicalStatus) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'quantity' => 'No existe el estado técnico "Pendiente" en el catálogo. Debes crearlo antes de generar tanques.',
+                ]);
+        }
+
+        try {
+            DB::transaction(function () use (
+                $data,
+                $batch,
+                $product,
+                $receptionArea,
+                $pendingTechnicalStatus,
+                $request
+            ) {
+                for ($i = 0; $i < $data['quantity']; $i++) {
+                    /*
+                     * Se mantiene tu método generateSerial().
+                     *
+                     * Como estamos dentro de una transacción,
+                     * lockForUpdate() protege correctamente
+                     * la secuencia contra concurrencia.
+                     */
+                    [$serial, $prefix, $number] = $this->generateSerial(
+                        $data['serial_prefix'] ?? null
+                    );
+
+                    $tank = TankUnit::create([
+                        'batch_id' => $batch->id,
+
+                        'product_id' => $product->id,
+
+                        'gas_type_id' => $product->gas_type_id,
+
+                        'capacity_id' => $product->capacity_id,
+
+                        /*
+                         * OBLIGATORIO:
+                         * Todo tanque nuevo entra a Recepción.
+                         */
+                        'warehouse_area_id' => $receptionArea->id,
+
+                        /*
+                         * OBLIGATORIO:
+                         * Todo tanque nuevo nace Pendiente.
+                         */
+                        'technical_status_id' => $pendingTechnicalStatus->id,
+
+                        'serial' => $serial,
+
+                        'serial_prefix' => $prefix,
+
+                        'serial_number' => $number,
+                    ]);
+
+                    /*
+                     * Conservamos exactamente la estructura real
+                     * de InventoryMovement que ya utilizas actualmente.
+                     */
+                    InventoryMovement::create([
+                        'type' => MovementType::ENTRADA,
+
+                        'occurred_at' => now(),
+
+                        'tank_unit_id' => $tank->id,
+
+                        'from_area_id' => null,
+
+                        'to_area_id' => $receptionArea->id,
+
+                        'batch_id' => $batch->id,
+
+                        'reference_document' => $batch->document_number,
+
+                        'performed_by_user_email' => $request->user()->email,
+
+                        'notes' => sprintf(
+                            'Ingreso inicial desde lote %s. Tanque pendiente de revisión técnica.',
+                            $batch->batch_number
+                        ),
+                    ]);
+                }
+            });
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'quantity' => 'No se pudieron generar los tanques: ' . $exception->getMessage(),
+                ]);
+        }
+
+        return back()->with(
+            'success',
+            'Tanques generados correctamente. Todos ingresaron al área Recepción con estado técnico Pendiente y deberán ser aprobados antes del despacho.'
+        );
+    }
+
+    /**
+     * Genera el siguiente serial disponible para un prefijo.
+     *
+     * Ejemplo:
+     *
+     * OXI-000001
+     * OXI-000002
+     * OXI-000003
+     */
     private function generateSerial(?string $prefix = null): array
     {
-        $prefix = strtoupper(trim($prefix ?: 'OXI'));
+        $prefix = strtoupper(
+            trim($prefix ?: 'OXI')
+        );
 
+        /*
+         * El método se ejecuta dentro de una transacción.
+         *
+         * lockForUpdate() evita que dos operaciones concurrentes
+         * obtengan el mismo último número.
+         */
         $last = DB::table('tank_units')
             ->where('serial_prefix', $prefix)
             ->lockForUpdate()
@@ -243,8 +551,16 @@ class BatchController extends Controller
 
         $nextNumber = ((int) $last) + 1;
 
-        $serial = sprintf('%s-%06d', $prefix, $nextNumber);
+        $serial = sprintf(
+            '%s-%06d',
+            $prefix,
+            $nextNumber
+        );
 
-        return [$serial, $prefix, $nextNumber];
+        return [
+            $serial,
+            $prefix,
+            $nextNumber,
+        ];
     }
 }

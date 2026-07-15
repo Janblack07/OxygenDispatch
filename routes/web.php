@@ -17,6 +17,7 @@ use App\Http\Controllers\Catalog\WarehouseAreaController;
 use App\Http\Controllers\Catalog\TechnicalStatusController;
 
 use App\Http\Controllers\MonthlyReportController;
+use App\Http\Controllers\TankTechnicalReviewController;
 use App\Http\Controllers\TechnicalReceptionController;
 
 Route::get('/', fn() => redirect()->route('dashboard'))->name('home');
@@ -75,6 +76,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggle-active');
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
     });
+    Route::get(
+        'technical-receptions/{technicalReception}/tank-reviews',
+        [TankTechnicalReviewController::class, 'index']
+    )->name('technical-receptions.tank-reviews.index');
+
+    Route::post(
+        'technical-receptions/{technicalReception}/tank-reviews/process',
+        [TankTechnicalReviewController::class, 'process']
+    )->name('technical-receptions.tank-reviews.process');
 });
 
 require __DIR__ . '/auth.php';
