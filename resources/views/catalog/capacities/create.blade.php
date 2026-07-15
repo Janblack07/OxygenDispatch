@@ -1,62 +1,327 @@
 <x-app-layout>
-    @php
-        $inputSm  = 'mt-1 block w-full rounded-md border-gray-300 text-sm py-2 px-3 leading-5 focus:border-indigo-500 focus:ring-indigo-500';
-        $selectSm = $inputSm;
-        $labelSm  = 'block text-[11px] font-medium text-gray-600';
-    @endphp
-
     <x-slot name="header">
-        <div class="flex items-start justify-between gap-4">
+        <div class="catalog-form-header">
             <div>
-                <h2 class="font-semibold text-lg text-gray-800 leading-tight">{{ __('Nueva capacidad') }}</h2>
-                <p class="mt-0.5 text-xs text-gray-500">Crea un elemento del catálogo.</p>
+                <h2 class="catalog-form-page-title">
+                    Nueva capacidad
+                </h2>
+
+                <p class="catalog-form-page-subtitle">
+                    Registra una nueva capacidad disponible para los tanques.
+                </p>
             </div>
 
-            <a href="{{ route('capacities.index') }}"
-               class="inline-flex items-center px-3 py-2 bg-gray-100 rounded-md text-xs font-semibold hover:bg-gray-200">
-                ← Volver
+            <a
+                href="{{ route('capacities.index') }}"
+                class="catalog-form-back-button"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
+                    />
+                </svg>
+
+                Volver
             </a>
         </div>
     </x-slot>
 
-    <div class="py-6">
-        <div class="max-w-xl mx-auto sm:px-6 lg:px-8 space-y-4">
-            @if ($errors->any())
-                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
-                    <ul class="list-disc ms-5 space-y-1">
-                        @foreach($errors->all() as $e) <li>{{ $e }}</li> @endforeach
+    <style>
+        .catalog-form-page {
+            min-height: calc(100vh - 128px);
+            padding: 26px 16px 36px;
+            background: #f8fafc;
+        }
+
+        .catalog-form-container {
+            width: 100%;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .catalog-form-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .catalog-form-page-title {
+            margin: 0;
+            color: #0f172a;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .catalog-form-page-subtitle {
+            margin: 3px 0 0;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .catalog-form-back-button,
+        .catalog-form-cancel-button,
+        .catalog-form-submit-button {
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 0 13px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .catalog-form-back-button,
+        .catalog-form-cancel-button {
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #475569;
+        }
+
+        .catalog-form-back-button:hover,
+        .catalog-form-cancel-button:hover {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .catalog-form-back-button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .catalog-form-submit-button {
+            border: 0;
+            background: #4f46e5;
+            color: #ffffff;
+            font-family: inherit;
+        }
+
+        .catalog-form-submit-button:hover {
+            background: #4338ca;
+        }
+
+        .catalog-form-errors {
+            margin-bottom: 18px;
+            padding: 13px 15px;
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            background: #fef2f2;
+            color: #991b1b;
+            font-size: 12px;
+        }
+
+        .catalog-form-errors ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .catalog-form-card {
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+        }
+
+        .catalog-form-card-header {
+            padding: 17px 20px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .catalog-form-card-title {
+            margin: 0;
+            color: #0f172a;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .catalog-form-card-subtitle {
+            margin: 3px 0 0;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .catalog-form-card-body {
+            padding: 20px;
+        }
+
+        .catalog-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .catalog-form-label {
+            display: block;
+            margin-bottom: 6px;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .catalog-required {
+            color: #dc2626;
+        }
+
+        .catalog-form-control {
+            width: 100%;
+            min-height: 42px;
+            box-sizing: border-box;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            background: #ffffff;
+            padding: 9px 12px;
+            color: #0f172a;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .catalog-form-control:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        }
+
+        .catalog-form-footer {
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        @media (max-width: 640px) {
+            .catalog-form-page {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+
+            .catalog-form-header {
+                flex-direction: column;
+            }
+
+            .catalog-form-back-button {
+                width: 100%;
+            }
+
+            .catalog-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .catalog-form-footer {
+                flex-direction: column-reverse;
+            }
+
+            .catalog-form-cancel-button,
+            .catalog-form-submit-button {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <div class="catalog-form-page">
+        <div class="catalog-form-container">
+
+            @if($errors->any())
+                <div class="catalog-form-errors">
+                    <ul>
+                        @foreach($errors->all() as $e)
+                            <li>{{ $e }}</li>
+                        @endforeach
                     </ul>
                 </div>
             @endif
 
-            <div class="bg-white shadow-sm sm:rounded-lg">
-                <div class="p-4">
-                    <form method="POST" action="{{ route('capacities.store') }}" class="space-y-4">
+            <section class="catalog-form-card">
+                <div class="catalog-form-card-header">
+                    <h3 class="catalog-form-card-title">
+                        Información de la capacidad
+                    </h3>
+
+                    <p class="catalog-form-card-subtitle">
+                        Define el nombre comercial y opcionalmente su volumen en metros cúbicos.
+                    </p>
+                </div>
+
+                <div class="catalog-form-card-body">
+                    <form
+                        method="POST"
+                        action="{{ route('capacities.store') }}"
+                    >
                         @csrf
 
-                        <div>
-                            <label class="{{ $labelSm }}">Nombre *</label>
-                            <input name="name" value="{{ old('name') }}" class="{{ $inputSm }}" required>
+                        <div class="catalog-form-grid">
+                            <div>
+                                <label
+                                    for="name"
+                                    class="catalog-form-label"
+                                >
+                                    Nombre
+                                    <span class="catalog-required">*</span>
+                                </label>
+
+                                <input
+                                    id="name"
+                                    name="name"
+                                    value="{{ old('name') }}"
+                                    class="catalog-form-control"
+                                    placeholder="Ej. 6 m³"
+                                    required
+                                >
+                            </div>
+
+                            <div>
+                                <label
+                                    for="m3"
+                                    class="catalog-form-label"
+                                >
+                                    Volumen en m³
+                                </label>
+
+                                <input
+                                    id="m3"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    name="m3"
+                                    value="{{ old('m3') }}"
+                                    class="catalog-form-control"
+                                    placeholder="Ej. 6.00"
+                                >
+                            </div>
                         </div>
 
-                        <div>
-                            <label class="{{ $labelSm }}">m3 (opcional)</label>
-                            <input type="number" step="0.01" name="m3" value="{{ old('m3') }}" class="{{ $inputSm }}">
-                        </div>
-
-                        <div class="flex justify-end gap-2">
-                            <a href="{{ route('capacities.index') }}"
-                               class="inline-flex items-center px-3 py-2 bg-gray-100 rounded-md text-xs font-semibold hover:bg-gray-200">
+                        <div class="catalog-form-footer">
+                            <a
+                                href="{{ route('capacities.index') }}"
+                                class="catalog-form-cancel-button"
+                            >
                                 Cancelar
                             </a>
-                            <button type="submit"
-                                    class="inline-flex items-center px-3 py-2 bg-indigo-600 text-white rounded-md text-xs font-semibold uppercase tracking-widest hover:bg-indigo-500">
-                                Guardar
+
+                            <button
+                                type="submit"
+                                class="catalog-form-submit-button"
+                            >
+                                Guardar capacidad
                             </button>
                         </div>
                     </form>
                 </div>
-            </div>
+            </section>
 
         </div>
     </div>
