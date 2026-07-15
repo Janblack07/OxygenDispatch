@@ -87,8 +87,8 @@
             min-width: 0;
             display: flex;
             align-items: center;
-            gap: 4px;
-            margin-left: 14px;
+            gap: 10px; /* más espacio entre items */
+            margin-left: 18px; /* más separación desde el logo */
             white-space: nowrap;
         }
 
@@ -99,7 +99,7 @@
             align-items: center;
             justify-content: center;
             gap: 5px;
-            padding: 0 10px;
+            padding: 0 12px; /* un poco más de aire horizontal */
             border: 1px solid transparent;
             border-radius: 9px;
             background: transparent;
@@ -202,7 +202,7 @@
             display: inline-flex;
             align-items: center;
             gap: 9px;
-            padding: 6px 9px 6px 6px;
+            padding: 6px 12px 6px 6px;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
             background: #ffffff;
@@ -323,14 +323,14 @@
         @media (max-width: 1180px) {
             .oxygen-nav-link,
             .oxygen-nav-button {
-                padding-left: 7px;
-                padding-right: 7px;
+                padding-left: 10px;
+                padding-right: 10px;
                 font-size: 12px;
             }
 
             .oxygen-desktop-nav {
-                gap: 2px;
-                margin-left: 10px;
+                gap: 7px;
+                margin-left: 12px;
             }
 
             .oxygen-user-name,
@@ -531,25 +531,6 @@
                             {{ $userRole }}
                         </span>
                     </span>
-
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        style="
-                            width: 15px;
-                            height: 15px;
-                            color: #64748b;
-                            transition: transform .15s ease;
-                        "
-                        :style="userOpen ? 'transform: rotate(180deg)' : ''"
-                    >
-                        <path
-                            fill-rule="evenodd"
-                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                            clip-rule="evenodd"
-                        />
-                    </svg>
                 </button>
 
                 <div
