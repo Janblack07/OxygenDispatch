@@ -1,198 +1,441 @@
 <nav
-    x-data="{ open: false }"
+    x-data="{
+        mobileOpen: false,
+        catalogsOpen: false,
+        userOpen: false
+    }"
+    class="oxygen-navbar"
     style="
         position: relative;
-        z-index: 50;
+        z-index: 60;
         width: 100%;
+        background: #ffffff;
         border-bottom: 1px solid #e2e8f0;
-        background: rgba(255, 255, 255, 0.96);
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
     "
 >
-    <div
-        style="
-            width: 100%;
+    @php
+        $catalogsActive =
+            request()->routeIs('gas-types.*') ||
+            request()->routeIs('capacities.*') ||
+            request()->routeIs('warehouse-areas.*') ||
+            request()->routeIs('technical-statuses.*');
+
+        $userName = Auth::user()->name ?? 'Usuario';
+        $userRole = Auth::user()->role ?? 'ENCARGADO';
+        $userInitial = mb_strtoupper(mb_substr(trim($userName), 0, 1));
+    @endphp
+
+    <style>
+        .oxygen-navbar * {
             box-sizing: border-box;
+        }
+
+        .oxygen-navbar-shell {
+            width: 100%;
             padding: 0 18px;
-        "
-    >
-        <div
-            style="
-                min-height: 64px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 16px;
-            "
-        >
-            {{-- IZQUIERDA: Logo + navegación --}}
-            <div
-                style="
-                    min-width: 0;
-                    display: flex;
-                    align-items: center;
-                    flex: 1;
-                "
-            >
+        }
+
+        .oxygen-navbar-row {
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .oxygen-navbar-left {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .oxygen-logo-box {
+            width: 58px;
+            height: 54px;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e2e8f0;
+            border-radius: 13px;
+            background: #ffffff;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            text-decoration: none;
+            transition:
+                border-color .15s ease,
+                box-shadow .15s ease,
+                transform .15s ease;
+        }
+
+        .oxygen-logo-box:hover {
+            border-color: #c7d2fe;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .oxygen-logo-box svg,
+        .oxygen-logo-box img {
+            width: auto;
+            height: 46px;
+            max-width: 52px;
+            object-fit: contain;
+        }
+
+        .oxygen-desktop-nav {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 14px;
+            white-space: nowrap;
+        }
+
+        .oxygen-nav-link,
+        .oxygen-nav-button {
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 0 10px;
+            border: 1px solid transparent;
+            border-radius: 9px;
+            background: transparent;
+            color: #475569;
+            font-family: inherit;
+            font-size: 13px;
+            line-height: 1;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition:
+                background-color .15s ease,
+                color .15s ease,
+                border-color .15s ease,
+                box-shadow .15s ease;
+        }
+
+        .oxygen-nav-link:hover,
+        .oxygen-nav-button:hover {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .oxygen-nav-link.is-active,
+        .oxygen-nav-button.is-active {
+            border-color: #c7d2fe;
+            background: #eef2ff;
+            color: #4338ca;
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(79, 70, 229, 0.06);
+        }
+
+        .oxygen-dropdown {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .oxygen-dropdown-panel {
+            position: absolute;
+            top: calc(100% + 8px);
+            min-width: 220px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            border-radius: 13px;
+            background: #ffffff;
+            box-shadow:
+                0 20px 25px -5px rgba(15, 23, 42, 0.10),
+                0 8px 10px -6px rgba(15, 23, 42, 0.05);
+        }
+
+        .oxygen-dropdown-panel-left {
+            left: 0;
+        }
+
+        .oxygen-dropdown-panel-right {
+            right: 0;
+        }
+
+        .oxygen-dropdown-inner {
+            padding: 6px;
+        }
+
+        .oxygen-dropdown-link {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 11px;
+            border-radius: 9px;
+            color: #334155;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition:
+                background-color .15s ease,
+                color .15s ease;
+        }
+
+        .oxygen-dropdown-link:hover {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .oxygen-dropdown-link.is-active {
+            background: #eef2ff;
+            color: #4338ca;
+            font-weight: 600;
+        }
+
+        .oxygen-user-wrapper {
+            position: relative;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            margin-left: 14px;
+        }
+
+        .oxygen-user-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 6px 9px 6px 6px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #475569;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+            transition:
+                background-color .15s ease,
+                border-color .15s ease,
+                box-shadow .15s ease;
+        }
+
+        .oxygen-user-button:hover {
+            border-color: #cbd5e1;
+            background: #f8fafc;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+        }
+
+        .oxygen-user-avatar {
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 3px 8px rgba(79, 70, 229, 0.18);
+        }
+
+        .oxygen-user-text {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            line-height: 1.15;
+        }
+
+        .oxygen-user-name {
+            max-width: 145px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .oxygen-user-role {
+            margin-top: 3px;
+            max-width: 145px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            color: #94a3b8;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        .oxygen-mobile-toggle {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 11px;
+            background: #f8fafc;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .oxygen-mobile-panel {
+            display: none;
+            border-top: 1px solid #e2e8f0;
+            background: #ffffff;
+        }
+
+        .oxygen-mobile-inner {
+            padding: 10px 12px 12px;
+        }
+
+        .oxygen-mobile-link {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            margin-bottom: 3px;
+            padding: 10px 12px;
+            border-radius: 9px;
+            color: #334155;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .oxygen-mobile-link.is-active {
+            background: #eef2ff;
+            color: #4338ca;
+            font-weight: 600;
+        }
+
+        .oxygen-mobile-section-title {
+            margin: 8px 0 4px;
+            padding: 8px 12px 4px;
+            color: #94a3b8;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 1180px) {
+            .oxygen-nav-link,
+            .oxygen-nav-button {
+                padding-left: 7px;
+                padding-right: 7px;
+                font-size: 12px;
+            }
+
+            .oxygen-desktop-nav {
+                gap: 2px;
+                margin-left: 10px;
+            }
+
+            .oxygen-user-name,
+            .oxygen-user-role {
+                max-width: 105px;
+            }
+        }
+
+        @media (max-width: 980px) {
+            .oxygen-desktop-nav,
+            .oxygen-user-wrapper {
+                display: none !important;
+            }
+
+            .oxygen-mobile-toggle {
+                display: inline-flex !important;
+            }
+
+            .oxygen-mobile-panel {
+                display: block;
+            }
+        }
+    </style>
+
+    <div class="oxygen-navbar-shell">
+        <div class="oxygen-navbar-row">
+
+            {{-- IZQUIERDA --}}
+            <div class="oxygen-navbar-left">
+
                 {{-- Logo --}}
-                <div
-                    style="
-                        flex-shrink: 0;
-                        display: flex;
-                        align-items: center;
-                    "
+                <a
+                    href="{{ route('dashboard') }}"
+                    class="oxygen-logo-box"
+                    aria-label="Ir al dashboard"
                 >
-                    <a
-                        href="{{ route('dashboard') }}"
-                        aria-label="Ir al dashboard"
-                        style="
-                            display: inline-flex;
-                            align-items: center;
-                            justify-content: center;
-                            text-decoration: none;
-                        "
-                    >
-                        <x-application-logo
-                            style="
-                                display: block;
-                                width: auto;
-                                height: 50px;
-                                object-fit: contain;
-                            "
-                        />
-                    </a>
-                </div>
+                    <x-application-logo />
+                </a>
 
-                {{-- Menú escritorio --}}
-                <div
-                    class="hidden sm:flex"
-                    style="
-                        min-width: 0;
-                        align-items: center;
-                        margin-left: 22px;
-                        gap: 16px;
-                        white-space: nowrap;
-                    "
-                >
-                    @php
-                        $desktopLinkBase = '
-                            position: relative;
-                            display: inline-flex;
-                            align-items: center;
-                            min-height: 64px;
-                            padding: 0 1px;
-                            border: 0;
-                            border-bottom: 2px solid transparent;
-                            background: transparent;
-                            font-size: 13px;
-                            line-height: 1;
-                            font-weight: 500;
-                            text-decoration: none;
-                            transition: color .15s ease, border-color .15s ease;
-                        ';
-
-                        $desktopLinkActive = '
-                            color: #4f46e5;
-                            border-bottom-color: #6366f1;
-                        ';
-
-                        $desktopLinkInactive = '
-                            color: #475569;
-                        ';
-                    @endphp
+                {{-- Navegación escritorio --}}
+                <div class="oxygen-desktop-nav">
 
                     <a
                         href="{{ route('dashboard') }}"
-                        style="{{ $desktopLinkBase }} {{ request()->routeIs('dashboard') ? $desktopLinkActive : $desktopLinkInactive }}"
+                        class="oxygen-nav-link {{ request()->routeIs('dashboard') ? 'is-active' : '' }}"
                     >
                         Dashboard
                     </a>
 
                     <a
                         href="{{ route('batches.index') }}"
-                        style="{{ $desktopLinkBase }} {{ request()->routeIs('batches.*') ? $desktopLinkActive : $desktopLinkInactive }}"
+                        class="oxygen-nav-link {{ request()->routeIs('batches.*') ? 'is-active' : '' }}"
                     >
                         Lotes
                     </a>
 
                     <a
                         href="{{ route('tanks.index') }}"
-                        style="{{ $desktopLinkBase }} {{ request()->routeIs('tanks.*') ? $desktopLinkActive : $desktopLinkInactive }}"
+                        class="oxygen-nav-link {{ request()->routeIs('tanks.*') ? 'is-active' : '' }}"
                     >
                         Tanques
                     </a>
 
                     <a
                         href="{{ route('dispatches.index') }}"
-                        style="{{ $desktopLinkBase }} {{ request()->routeIs('dispatches.*') ? $desktopLinkActive : $desktopLinkInactive }}"
+                        class="oxygen-nav-link {{ request()->routeIs('dispatches.*') ? 'is-active' : '' }}"
                     >
                         Despachos
                     </a>
 
                     <a
                         href="{{ route('clients.index') }}"
-                        style="{{ $desktopLinkBase }} {{ request()->routeIs('clients.*') ? $desktopLinkActive : $desktopLinkInactive }}"
+                        class="oxygen-nav-link {{ request()->routeIs('clients.*') ? 'is-active' : '' }}"
                     >
                         Clientes
                     </a>
 
                     <a
                         href="{{ route('inventory.movements') }}"
-                        style="{{ $desktopLinkBase }} {{ request()->routeIs('inventory.movements') ? $desktopLinkActive : $desktopLinkInactive }}"
+                        class="oxygen-nav-link {{ request()->routeIs('inventory.movements') ? 'is-active' : '' }}"
                     >
                         Movimientos
                     </a>
 
                     <a
                         href="{{ route('technical-receptions.index') }}"
-                        style="{{ $desktopLinkBase }} {{ request()->routeIs('technical-receptions.*') ? $desktopLinkActive : $desktopLinkInactive }}"
+                        class="oxygen-nav-link {{ request()->routeIs('technical-receptions.*') ? 'is-active' : '' }}"
                     >
                         Recepción
                     </a>
 
                     <a
                         href="{{ route('reports.monthly.index') }}"
-                        style="{{ $desktopLinkBase }} {{ request()->routeIs('reports.monthly.*') ? $desktopLinkActive : $desktopLinkInactive }}"
+                        class="oxygen-nav-link {{ request()->routeIs('reports.monthly.*') ? 'is-active' : '' }}"
                     >
                         Reportes
                     </a>
 
                     {{-- Catálogos --}}
-                    @php
-                        $catalogsActive =
-                            request()->routeIs('gas-types.*') ||
-                            request()->routeIs('capacities.*') ||
-                            request()->routeIs('warehouse-areas.*') ||
-                            request()->routeIs('technical-statuses.*');
-                    @endphp
-
-                    <div
-                        x-data="{ catalogOpen: false }"
-                        style="
-                            position: relative;
-                            display: inline-flex;
-                            align-items: center;
-                        "
-                    >
+                    <div class="oxygen-dropdown">
                         <button
                             type="button"
-                            @click="catalogOpen = !catalogOpen"
-                            @click.outside="catalogOpen = false"
-                            style="
-                                min-height: 64px;
-                                display: inline-flex;
-                                align-items: center;
-                                gap: 5px;
-                                padding: 0;
-                                border: 0;
-                                border-bottom: 2px solid {{ $catalogsActive ? '#6366f1' : 'transparent' }};
-                                background: transparent;
-                                color: {{ $catalogsActive ? '#4f46e5' : '#475569' }};
-                                font-size: 13px;
-                                line-height: 1;
-                                font-weight: 500;
-                                cursor: pointer;
-                            "
+                            @click="catalogsOpen = !catalogsOpen"
+                            @click.outside="catalogsOpen = false"
+                            class="oxygen-nav-button {{ $catalogsActive ? 'is-active' : '' }}"
                         >
                             <span>Catálogos</span>
 
@@ -205,7 +448,7 @@
                                     height: 14px;
                                     transition: transform .15s ease;
                                 "
-                                :style="catalogOpen ? 'transform: rotate(180deg)' : ''"
+                                :style="catalogsOpen ? 'transform: rotate(180deg)' : ''"
                             >
                                 <path
                                     fill-rule="evenodd"
@@ -216,146 +459,78 @@
                         </button>
 
                         <div
-                            x-show="catalogOpen"
+                            x-show="catalogsOpen"
                             x-cloak
                             x-transition
-                            style="
-                                position: absolute;
-                                top: calc(100% - 6px);
-                                left: 0;
-                                min-width: 220px;
-                                overflow: hidden;
-                                border: 1px solid #e2e8f0;
-                                border-radius: 12px;
-                                background: #ffffff;
-                                box-shadow:
-                                    0 20px 25px -5px rgba(15, 23, 42, 0.10),
-                                    0 8px 10px -6px rgba(15, 23, 42, 0.06);
-                            "
+                            class="oxygen-dropdown-panel oxygen-dropdown-panel-left"
                         >
-                            <div style="padding: 6px;">
-                                @foreach([
-                                    [
-                                        'route' => route('gas-types.index'),
-                                        'label' => 'Tipos de gas',
-                                        'active' => request()->routeIs('gas-types.*'),
-                                    ],
-                                    [
-                                        'route' => route('capacities.index'),
-                                        'label' => 'Capacidades',
-                                        'active' => request()->routeIs('capacities.*'),
-                                    ],
-                                    [
-                                        'route' => route('warehouse-areas.index'),
-                                        'label' => 'Áreas',
-                                        'active' => request()->routeIs('warehouse-areas.*'),
-                                    ],
-                                    [
-                                        'route' => route('technical-statuses.index'),
-                                        'label' => 'Estados técnicos',
-                                        'active' => request()->routeIs('technical-statuses.*'),
-                                    ],
-                                ] as $catalogItem)
-                                    <a
-                                        href="{{ $catalogItem['route'] }}"
-                                        style="
-                                            display: flex;
-                                            align-items: center;
-                                            width: 100%;
-                                            box-sizing: border-box;
-                                            padding: 10px 12px;
-                                            border-radius: 8px;
-                                            background: {{ $catalogItem['active'] ? '#eef2ff' : 'transparent' }};
-                                            color: {{ $catalogItem['active'] ? '#4338ca' : '#334155' }};
-                                            font-size: 13px;
-                                            font-weight: {{ $catalogItem['active'] ? '600' : '500' }};
-                                            text-decoration: none;
-                                        "
-                                    >
-                                        {{ $catalogItem['label'] }}
-                                    </a>
-                                @endforeach
+                            <div class="oxygen-dropdown-inner">
+
+                                <a
+                                    href="{{ route('gas-types.index') }}"
+                                    class="oxygen-dropdown-link {{ request()->routeIs('gas-types.*') ? 'is-active' : '' }}"
+                                >
+                                    Tipos de gas
+                                </a>
+
+                                <a
+                                    href="{{ route('capacities.index') }}"
+                                    class="oxygen-dropdown-link {{ request()->routeIs('capacities.*') ? 'is-active' : '' }}"
+                                >
+                                    Capacidades
+                                </a>
+
+                                <a
+                                    href="{{ route('warehouse-areas.index') }}"
+                                    class="oxygen-dropdown-link {{ request()->routeIs('warehouse-areas.*') ? 'is-active' : '' }}"
+                                >
+                                    Áreas
+                                </a>
+
+                                <a
+                                    href="{{ route('technical-statuses.index') }}"
+                                    class="oxygen-dropdown-link {{ request()->routeIs('technical-statuses.*') ? 'is-active' : '' }}"
+                                >
+                                    Estados técnicos
+                                </a>
+
                             </div>
                         </div>
                     </div>
 
-                    @if(in_array(Auth::user()->role ?? 'ENCARGADO', ['PROGRAMADOR', 'ADMINISTRADOR']))
+                    @if(in_array($userRole, ['PROGRAMADOR', 'ADMINISTRADOR']))
                         <a
                             href="{{ route('users.index') }}"
-                            style="{{ $desktopLinkBase }} {{ request()->routeIs('users.*') ? $desktopLinkActive : $desktopLinkInactive }}"
+                            class="oxygen-nav-link {{ request()->routeIs('users.*') ? 'is-active' : '' }}"
                         >
                             Usuarios
                         </a>
                     @endif
+
                 </div>
             </div>
 
-            {{-- DERECHA: usuario escritorio --}}
-            <div
-                class="hidden sm:flex"
-                x-data="{ userOpen: false }"
-                style="
-                    position: relative;
-                    flex-shrink: 0;
-                    align-items: center;
-                    margin-left: 14px;
-                "
-            >
+            {{-- DERECHA: USUARIO --}}
+            <div class="oxygen-user-wrapper">
                 <button
                     type="button"
                     @click="userOpen = !userOpen"
                     @click.outside="userOpen = false"
-                    style="
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 10px;
-                        padding: 7px 10px;
-                        border: 1px solid transparent;
-                        border-radius: 10px;
-                        background: transparent;
-                        color: #475569;
-                        cursor: pointer;
-                    "
+                    class="oxygen-user-button"
                 >
-                    <div
-                        style="
-                            display: flex;
-                            flex-direction: column;
-                            align-items: flex-end;
-                            line-height: 1.15;
-                        "
-                    >
-                        <span
-                            style="
-                                max-width: 155px;
-                                overflow: hidden;
-                                white-space: nowrap;
-                                text-overflow: ellipsis;
-                                font-size: 13px;
-                                font-weight: 600;
-                                color: #334155;
-                            "
-                        >
-                            {{ Auth::user()->name }}
+                    <span class="oxygen-user-avatar">
+                        {{ $userInitial }}
+                    </span>
+
+                    <span class="oxygen-user-text">
+                        <span class="oxygen-user-name">
+                            {{ $userName }}
                         </span>
 
-                        <span
-                            style="
-                                margin-top: 3px;
-                                max-width: 155px;
-                                overflow: hidden;
-                                white-space: nowrap;
-                                text-overflow: ellipsis;
-                                font-size: 10px;
-                                font-weight: 500;
-                                color: #94a3b8;
-                                letter-spacing: .04em;
-                                text-transform: uppercase;
-                            "
-                        >
-                            {{ Auth::user()->role ?? 'ENCARGADO' }}
+                        <span class="oxygen-user-role">
+                            {{ $userRole }}
                         </span>
-                    </div>
+                    </span>
 
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -381,62 +556,60 @@
                     x-show="userOpen"
                     x-cloak
                     x-transition
-                    style="
-                        position: absolute;
-                        top: calc(100% + 8px);
-                        right: 0;
-                        min-width: 210px;
-                        overflow: hidden;
-                        border: 1px solid #e2e8f0;
-                        border-radius: 12px;
-                        background: #ffffff;
-                        box-shadow:
-                            0 20px 25px -5px rgba(15, 23, 42, 0.10),
-                            0 8px 10px -6px rgba(15, 23, 42, 0.06);
-                    "
+                    class="oxygen-dropdown-panel oxygen-dropdown-panel-right"
+                    style="min-width: 230px;"
                 >
                     <div
                         style="
-                            padding: 12px 14px;
+                            padding: 14px;
                             border-bottom: 1px solid #f1f5f9;
                         "
                     >
                         <div
                             style="
-                                font-size: 13px;
-                                font-weight: 600;
-                                color: #0f172a;
+                                display: flex;
+                                align-items: center;
+                                gap: 10px;
                             "
                         >
-                            {{ Auth::user()->name }}
-                        </div>
+                            <span class="oxygen-user-avatar">
+                                {{ $userInitial }}
+                            </span>
 
-                        <div
-                            style="
-                                margin-top: 3px;
-                                font-size: 11px;
-                                color: #64748b;
-                            "
-                        >
-                            {{ Auth::user()->email }}
+                            <div style="min-width: 0;">
+                                <div
+                                    style="
+                                        overflow: hidden;
+                                        white-space: nowrap;
+                                        text-overflow: ellipsis;
+                                        color: #0f172a;
+                                        font-size: 13px;
+                                        font-weight: 700;
+                                    "
+                                >
+                                    {{ $userName }}
+                                </div>
+
+                                <div
+                                    style="
+                                        margin-top: 3px;
+                                        overflow: hidden;
+                                        white-space: nowrap;
+                                        text-overflow: ellipsis;
+                                        color: #64748b;
+                                        font-size: 11px;
+                                    "
+                                >
+                                    {{ Auth::user()->email }}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div style="padding: 6px;">
+                    <div class="oxygen-dropdown-inner">
                         <a
                             href="{{ route('profile.edit') }}"
-                            style="
-                                display: flex;
-                                width: 100%;
-                                box-sizing: border-box;
-                                align-items: center;
-                                padding: 10px 12px;
-                                border-radius: 8px;
-                                color: #334155;
-                                font-size: 13px;
-                                font-weight: 500;
-                                text-decoration: none;
-                            "
+                            class="oxygen-dropdown-link"
                         >
                             Perfil
                         </a>
@@ -446,19 +619,13 @@
 
                             <button
                                 type="submit"
+                                class="oxygen-dropdown-link"
                                 style="
-                                    width: 100%;
-                                    display: flex;
-                                    align-items: center;
-                                    padding: 10px 12px;
                                     border: 0;
-                                    border-radius: 8px;
                                     background: transparent;
                                     color: #dc2626;
-                                    font-size: 13px;
-                                    font-weight: 500;
-                                    text-align: left;
                                     cursor: pointer;
+                                    text-align: left;
                                 "
                             >
                                 Cerrar sesión
@@ -468,93 +635,105 @@
                 </div>
             </div>
 
-            {{-- Botón móvil --}}
-            <div
-                class="sm:hidden"
-                style="
-                    display: flex;
-                    align-items: center;
-                "
+            {{-- MÓVIL --}}
+            <button
+                type="button"
+                @click="mobileOpen = !mobileOpen"
+                class="oxygen-mobile-toggle"
+                aria-label="Abrir menú"
             >
-                <button
-                    type="button"
-                    @click="open = !open"
-                    style="
-                        width: 40px;
-                        height: 40px;
-                        display: inline-flex;
-                        align-items: center;
-                        justify-content: center;
-                        border: 1px solid #e2e8f0;
-                        border-radius: 10px;
-                        background: #f8fafc;
-                        color: #64748b;
-                        cursor: pointer;
-                    "
+                <svg
+                    x-show="!mobileOpen"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    style="width: 22px; height: 22px;"
                 >
-                    <svg
-                        x-show="!open"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        style="width: 22px; height: 22px;"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M4 6h16M4 12h16M4 18h16"
-                        />
-                    </svg>
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M4 6h16M4 12h16M4 18h16"
+                    />
+                </svg>
 
-                    <svg
-                        x-show="open"
-                        x-cloak
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        style="width: 22px; height: 22px;"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M6 18L18 6M6 6l12 12"
-                        />
-                    </svg>
-                </button>
-            </div>
+                <svg
+                    x-show="mobileOpen"
+                    x-cloak
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    style="width: 22px; height: 22px;"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M6 18L18 6M6 6l12 12"
+                    />
+                </svg>
+            </button>
+
         </div>
     </div>
 
-    {{-- Menú móvil --}}
+    {{-- PANEL MÓVIL --}}
     <div
-        x-show="open"
+        x-show="mobileOpen"
         x-cloak
-        class="sm:hidden"
-        style="
-            border-top: 1px solid #e2e8f0;
-            background: #ffffff;
-        "
+        x-transition
+        class="oxygen-mobile-panel"
     >
-        <div style="padding: 10px 12px;">
+        <div class="oxygen-mobile-inner">
             @php
                 $mobileItems = [
-                    ['route' => route('dashboard'), 'label' => 'Dashboard', 'active' => request()->routeIs('dashboard')],
-                    ['route' => route('batches.index'), 'label' => 'Lotes', 'active' => request()->routeIs('batches.*')],
-                    ['route' => route('tanks.index'), 'label' => 'Tanques', 'active' => request()->routeIs('tanks.*')],
-                    ['route' => route('dispatches.index'), 'label' => 'Despachos', 'active' => request()->routeIs('dispatches.*')],
-                    ['route' => route('clients.index'), 'label' => 'Clientes', 'active' => request()->routeIs('clients.*')],
-                    ['route' => route('inventory.movements'), 'label' => 'Movimientos', 'active' => request()->routeIs('inventory.movements')],
-                    ['route' => route('technical-receptions.index'), 'label' => 'Recepción técnica', 'active' => request()->routeIs('technical-receptions.*')],
-                    ['route' => route('reports.monthly.index'), 'label' => 'Reportes', 'active' => request()->routeIs('reports.monthly.*')],
+                    [
+                        'href' => route('dashboard'),
+                        'label' => 'Dashboard',
+                        'active' => request()->routeIs('dashboard'),
+                    ],
+                    [
+                        'href' => route('batches.index'),
+                        'label' => 'Lotes',
+                        'active' => request()->routeIs('batches.*'),
+                    ],
+                    [
+                        'href' => route('tanks.index'),
+                        'label' => 'Tanques',
+                        'active' => request()->routeIs('tanks.*'),
+                    ],
+                    [
+                        'href' => route('dispatches.index'),
+                        'label' => 'Despachos',
+                        'active' => request()->routeIs('dispatches.*'),
+                    ],
+                    [
+                        'href' => route('clients.index'),
+                        'label' => 'Clientes',
+                        'active' => request()->routeIs('clients.*'),
+                    ],
+                    [
+                        'href' => route('inventory.movements'),
+                        'label' => 'Movimientos',
+                        'active' => request()->routeIs('inventory.movements'),
+                    ],
+                    [
+                        'href' => route('technical-receptions.index'),
+                        'label' => 'Recepción técnica',
+                        'active' => request()->routeIs('technical-receptions.*'),
+                    ],
+                    [
+                        'href' => route('reports.monthly.index'),
+                        'label' => 'Reportes',
+                        'active' => request()->routeIs('reports.monthly.*'),
+                    ],
                 ];
 
-                if (in_array(Auth::user()->role ?? 'ENCARGADO', ['PROGRAMADOR', 'ADMINISTRADOR'])) {
+                if(in_array($userRole, ['PROGRAMADOR', 'ADMINISTRADOR'])) {
                     $mobileItems[] = [
-                        'route' => route('users.index'),
+                        'href' => route('users.index'),
                         'label' => 'Usuarios',
                         'active' => request()->routeIs('users.*'),
                     ];
@@ -563,64 +742,44 @@
 
             @foreach($mobileItems as $item)
                 <a
-                    href="{{ $item['route'] }}"
-                    style="
-                        display: flex;
-                        align-items: center;
-                        width: 100%;
-                        box-sizing: border-box;
-                        margin-bottom: 3px;
-                        padding: 10px 12px;
-                        border-radius: 9px;
-                        background: {{ $item['active'] ? '#eef2ff' : 'transparent' }};
-                        color: {{ $item['active'] ? '#4338ca' : '#334155' }};
-                        font-size: 14px;
-                        font-weight: {{ $item['active'] ? '600' : '500' }};
-                        text-decoration: none;
-                    "
+                    href="{{ $item['href'] }}"
+                    class="oxygen-mobile-link {{ $item['active'] ? 'is-active' : '' }}"
                 >
                     {{ $item['label'] }}
                 </a>
             @endforeach
 
-            <div
-                style="
-                    margin: 8px 0 4px;
-                    padding: 8px 12px 4px;
-                    font-size: 10px;
-                    font-weight: 700;
-                    color: #94a3b8;
-                    letter-spacing: .08em;
-                    text-transform: uppercase;
-                "
-            >
+            <div class="oxygen-mobile-section-title">
                 Catálogos
             </div>
 
-            @foreach([
-                ['route' => route('gas-types.index'), 'label' => 'Tipos de gas'],
-                ['route' => route('capacities.index'), 'label' => 'Capacidades'],
-                ['route' => route('warehouse-areas.index'), 'label' => 'Áreas'],
-                ['route' => route('technical-statuses.index'), 'label' => 'Estados técnicos'],
-            ] as $catalogItem)
-                <a
-                    href="{{ $catalogItem['route'] }}"
-                    style="
-                        display: flex;
-                        align-items: center;
-                        width: 100%;
-                        box-sizing: border-box;
-                        padding: 9px 12px 9px 22px;
-                        border-radius: 9px;
-                        color: #475569;
-                        font-size: 13px;
-                        font-weight: 500;
-                        text-decoration: none;
-                    "
-                >
-                    {{ $catalogItem['label'] }}
-                </a>
-            @endforeach
+            <a
+                href="{{ route('gas-types.index') }}"
+                class="oxygen-mobile-link {{ request()->routeIs('gas-types.*') ? 'is-active' : '' }}"
+            >
+                Tipos de gas
+            </a>
+
+            <a
+                href="{{ route('capacities.index') }}"
+                class="oxygen-mobile-link {{ request()->routeIs('capacities.*') ? 'is-active' : '' }}"
+            >
+                Capacidades
+            </a>
+
+            <a
+                href="{{ route('warehouse-areas.index') }}"
+                class="oxygen-mobile-link {{ request()->routeIs('warehouse-areas.*') ? 'is-active' : '' }}"
+            >
+                Áreas
+            </a>
+
+            <a
+                href="{{ route('technical-statuses.index') }}"
+                class="oxygen-mobile-link {{ request()->routeIs('technical-statuses.*') ? 'is-active' : '' }}"
+            >
+                Estados técnicos
+            </a>
         </div>
 
         <div
@@ -631,35 +790,36 @@
         >
             <div
                 style="
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: #0f172a;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
                 "
             >
-                {{ Auth::user()->name }}
-            </div>
+                <span class="oxygen-user-avatar">
+                    {{ $userInitial }}
+                </span>
 
-            <div
-                style="
-                    margin-top: 2px;
-                    font-size: 12px;
-                    color: #64748b;
-                "
-            >
-                {{ Auth::user()->email }}
-            </div>
+                <div style="min-width: 0;">
+                    <div
+                        style="
+                            color: #0f172a;
+                            font-size: 14px;
+                            font-weight: 700;
+                        "
+                    >
+                        {{ $userName }}
+                    </div>
 
-            <div
-                style="
-                    margin-top: 2px;
-                    font-size: 10px;
-                    font-weight: 600;
-                    color: #94a3b8;
-                    text-transform: uppercase;
-                    letter-spacing: .05em;
-                "
-            >
-                {{ Auth::user()->role ?? 'ENCARGADO' }}
+                    <div
+                        style="
+                            margin-top: 2px;
+                            color: #64748b;
+                            font-size: 12px;
+                        "
+                    >
+                        {{ Auth::user()->email }}
+                    </div>
+                </div>
             </div>
 
             <div
@@ -672,17 +832,8 @@
             >
                 <a
                     href="{{ route('profile.edit') }}"
-                    style="
-                        display: flex;
-                        align-items: center;
-                        padding: 9px 12px;
-                        border-radius: 9px;
-                        background: #f8fafc;
-                        color: #334155;
-                        font-size: 13px;
-                        font-weight: 500;
-                        text-decoration: none;
-                    "
+                    class="oxygen-mobile-link"
+                    style="background: #f8fafc;"
                 >
                     Perfil
                 </a>
@@ -692,19 +843,13 @@
 
                     <button
                         type="submit"
+                        class="oxygen-mobile-link"
                         style="
-                            width: 100%;
-                            display: flex;
-                            align-items: center;
-                            padding: 9px 12px;
                             border: 0;
-                            border-radius: 9px;
                             background: #fef2f2;
                             color: #dc2626;
-                            font-size: 13px;
-                            font-weight: 500;
-                            text-align: left;
                             cursor: pointer;
+                            text-align: left;
                         "
                     >
                         Cerrar sesión
