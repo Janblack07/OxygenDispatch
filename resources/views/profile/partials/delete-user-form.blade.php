@@ -1,55 +1,150 @@
-<section class="space-y-6">
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Delete Account') }}
-        </h2>
+<section>
+    <div class="profile-danger-notice">
+        <div class="profile-danger-notice-content">
+            <h4 class="profile-danger-notice-title">
+                Eliminación permanente de cuenta
+            </h4>
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
-        </p>
-    </header>
+            <p class="profile-danger-notice-text">
+                Una vez eliminada tu cuenta, los recursos y datos asociados serán eliminados permanentemente. Esta acción no se puede deshacer.
+            </p>
+        </div>
 
-    <x-danger-button
-        x-data=""
-        x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
-    >{{ __('Delete Account') }}</x-danger-button>
+        <button
+            type="button"
+            x-data=""
+            x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
+            class="profile-danger-button"
+        >
+            Eliminar mi cuenta
+        </button>
+    </div>
 
-    <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-        <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+    <x-modal
+        name="confirm-user-deletion"
+        :show="$errors->userDeletion->isNotEmpty()"
+        focusable
+    >
+        <form
+            method="POST"
+            action="{{ route('profile.destroy') }}"
+            class="profile-modal-form"
+        >
             @csrf
-            @method('delete')
+            @method('DELETE')
 
-            <h2 class="text-lg font-medium text-gray-900">
-                {{ __('Are you sure you want to delete your account?') }}
+            <h2 class="profile-modal-title">
+                ¿Seguro que deseas eliminar tu cuenta?
             </h2>
 
-            <p class="mt-1 text-sm text-gray-600">
-                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
+            <p class="profile-modal-text">
+                Esta acción es permanente. Ingresa tu contraseña actual para confirmar la eliminación definitiva de tu cuenta.
             </p>
 
-            <div class="mt-6">
-                <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
+            <div class="profile-modal-field">
+                <label
+                    for="password"
+                    class="profile-form-label"
+                >
+                    Contraseña actual
+                    <span class="profile-required">*</span>
+                </label>
 
-                <x-text-input
-                    id="password"
-                    name="password"
-                    type="password"
-                    class="mt-1 block w-3/4"
-                    placeholder="{{ __('Password') }}"
-                />
+                <div class="profile-password-wrapper">
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        class="profile-form-control {{ $errors->userDeletion->has('password') ? 'has-error' : '' }}"
+                        placeholder="Ingresa tu contraseña"
+                        autocomplete="current-password"
+                    >
 
-                <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
+                    <button
+                        type="button"
+                        id="toggle-delete-password"
+                        class="profile-password-toggle"
+                        aria-label="Mostrar contraseña"
+                        title="Mostrar contraseña"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+                            />
+
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                            />
+                        </svg>
+                    </button>
+                </div>
+
+                @foreach($errors->userDeletion->get('password') as $message)
+                    <p class="profile-form-error">
+                        {{ $message }}
+                    </p>
+                @endforeach
             </div>
 
-            <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
-                    {{ __('Cancel') }}
-                </x-secondary-button>
+            <div class="profile-modal-actions">
+                <button
+                    type="button"
+                    x-on:click="$dispatch('close')"
+                    class="profile-cancel-button"
+                >
+                    Cancelar
+                </button>
 
-                <x-danger-button class="ms-3">
-                    {{ __('Delete Account') }}
-                </x-danger-button>
+                <button
+                    type="submit"
+                    class="profile-danger-button"
+                >
+                    Eliminar definitivamente
+                </button>
             </div>
         </form>
     </x-modal>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const passwordInput = document.getElementById('password');
+            const toggleButton = document.getElementById('toggle-delete-password');
+
+            if (!passwordInput || !toggleButton) {
+                return;
+            }
+
+            toggleButton.addEventListener('click', function () {
+                const isHidden = passwordInput.type === 'password';
+
+                passwordInput.type = isHidden
+                    ? 'text'
+                    : 'password';
+
+                toggleButton.setAttribute(
+                    'aria-label',
+                    isHidden
+                        ? 'Ocultar contraseña'
+                        : 'Mostrar contraseña'
+                );
+
+                toggleButton.setAttribute(
+                    'title',
+                    isHidden
+                        ? 'Ocultar contraseña'
+                        : 'Mostrar contraseña'
+                );
+            });
+        });
+    </script>
 </section>
