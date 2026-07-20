@@ -29,6 +29,9 @@ class TankUnit extends Model
 
         'warehouse_area_id',
         'technical_status_id',
+        'sanitary_registry',
+        'manufactured_at',
+        'expires_at',
 
         'status',
         'dispatched_at',
@@ -37,6 +40,8 @@ class TankUnit extends Model
     protected $casts = [
         'dispatched_at' => 'datetime',
         'status' => TankStatus::class,
+        'manufactured_at' => 'date',
+        'expires_at' => 'date',
     ];
 
     public function batch()

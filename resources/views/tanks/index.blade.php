@@ -7,7 +7,7 @@
                 </h2>
 
                 <p class="tank-page-subtitle">
-                    Consulta y filtra las unidades por serial, lote, gas, capacidad, área y estado técnico.
+                    Consulta y filtra las unidades por serial, lote, gas, capacidad, área, vencimiento y estado técnico.
                 </p>
             </div>
         </div>
@@ -228,7 +228,7 @@
 
         .tank-table {
             width: 100%;
-            min-width: 1100px;
+            min-width: 1220px;
             border-collapse: collapse;
         }
 
@@ -288,7 +288,8 @@
 
         .tank-area-badge,
         .tank-technical-badge,
-        .tank-status-badge {
+        .tank-status-badge,
+        .tank-expiration-badge {
             display: inline-flex;
             align-items: center;
             padding: 5px 9px;
@@ -303,6 +304,31 @@
             border: 1px solid #e2e8f0;
             background: #f8fafc;
             color: #475569;
+        }
+
+        .tank-expiration-badge.valid {
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .tank-expiration-badge.warning {
+            border: 1px solid #fde68a;
+            background: #fffbeb;
+            color: #92400e;
+        }
+
+        .tank-expiration-badge.expired {
+            border: 1px solid #fecaca;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .tank-expiration-note {
+            margin-top: 4px;
+            color: #94a3b8;
+            font-size: 10px;
+            white-space: nowrap;
         }
 
         .tank-pagination {
@@ -643,7 +669,7 @@
                         </h3>
 
                         <p class="tank-section-subtitle">
-                            Consulta la ubicación, estado técnico y estado operativo de cada unidad.
+                            Consulta la ubicación, vencimiento, estado técnico y estado operativo de cada unidad.
                         </p>
                     </div>
 
@@ -662,6 +688,7 @@
                                 <th>Gas</th>
                                 <th>Capacidad</th>
                                 <th>Registro sanitario</th>
+                                <th>Vencimiento</th>
                                 <th>Área</th>
                                 <th>Estado técnico</th>
                                 <th>Estado operativo</th>
@@ -726,6 +753,27 @@
                                             color: #475569;
                                         ',
                                     };
+
+                                    $expirationClass = 'valid';
+                                    $expirationNote = null;
+                                    $expirationDate = null;
+
+                                    if ($tank->expires_at) {
+                                        $expirationDate = $tank->expires_at instanceof \Carbon\CarbonInterface
+                                            ? $tank->expires_at
+                                            : \Carbon\Carbon::parse($tank->expires_at);
+
+                                        if ($expirationDate->isPast()) {
+                                            $expirationClass = 'expired';
+                                            $expirationNote = 'Vencido';
+                                        } elseif ($expirationDate->lte(now()->addMonths(6))) {
+                                            $expirationClass = 'warning';
+                                            $expirationNote = 'Próximo a vencer';
+                                        } else {
+                                            $expirationClass = 'valid';
+                                            $expirationNote = 'Vigente';
+                                        }
+                                    }
                                 @endphp
 
                                 <tr>
@@ -763,6 +811,23 @@
                                     </td>
 
                                     <td>
+                                        @if($expirationDate)
+                                            <span
+                                                class="tank-expiration-badge {{ $expirationClass }}"
+                                                title="{{ $expirationDate->format('Y-m-d') }}"
+                                            >
+                                                {{ $expirationDate->format('d/m/Y') }}
+                                            </span>
+
+                                            <div class="tank-expiration-note">
+                                                {{ $expirationNote }}
+                                            </div>
+                                        @else
+                                            —
+                                        @endif
+                                    </td>
+
+                                    <td>
                                         <span class="tank-area-badge">
                                             {{ $tank->warehouseArea?->name ?? '—' }}
                                         </span>
@@ -788,7 +853,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8">
+                                    <td colspan="9">
                                         <div class="tank-empty-state">
                                             <div class="tank-empty-icon">
                                                 <svg

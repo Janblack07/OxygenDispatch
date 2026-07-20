@@ -316,7 +316,7 @@
 
         .batch-generate-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
             gap: 12px;
             align-items: end;
         }
@@ -488,7 +488,7 @@
 
         .batch-table {
             width: 100%;
-            min-width: 980px;
+            min-width: 1080px;
             border-collapse: collapse;
         }
 
@@ -561,6 +561,12 @@
 
         .batch-module-link:hover {
             text-decoration: underline;
+        }
+
+        @media (max-width: 1000px) {
+            .batch-generate-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
 
         @media (max-width: 900px) {
@@ -862,6 +868,32 @@
 
                             <div>
                                 <label
+                                    for="expires_at"
+                                    class="batch-field-label"
+                                >
+                                    Fecha de vencimiento
+                                </label>
+
+                                <input
+                                    id="expires_at"
+                                    type="date"
+                                    name="expires_at"
+                                    min="{{ now()->format('Y-m-d') }}"
+                                    max="{{ now()->addYears(50)->format('Y-m-d') }}"
+                                    value="{{ old('expires_at', now()->addYears(5)->format('Y-m-d')) }}"
+                                    class="batch-control"
+                                    required
+                                >
+
+                                @error('expires_at')
+                                    <p class="batch-field-error">
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label
                                     for="serial_prefix"
                                     class="batch-field-label"
                                 >
@@ -993,6 +1025,7 @@
                                     <th>Producto</th>
                                     <th>Capacidad</th>
                                     <th>Registro sanitario</th>
+                                    <th>Vencimiento</th>
                                     <th>Área</th>
                                     <th style="text-align: center;">
                                         Estado técnico
@@ -1069,6 +1102,19 @@
                                         </td>
 
                                         <td>
+                                            @if($tank->expires_at)
+                                                <span
+                                                    class="batch-status-pill blue"
+                                                    title="{{ $tank->expires_at->format('Y-m-d') }}"
+                                                >
+                                                    {{ $tank->expires_at->format('d/m/Y') }}
+                                                </span>
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
+
+                                        <td>
                                             {{ $tank->warehouseArea?->name ?? '—' }}
                                         </td>
 
@@ -1109,7 +1155,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7">
+                                        <td colspan="8">
                                             <div class="batch-empty">
                                                 Aún no hay tanques en este lote. Usa
                                                 <strong>Generar tanques</strong>

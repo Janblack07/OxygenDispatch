@@ -377,6 +377,13 @@ class BatchController extends Controller
                 'exists:catalog_products,id',
             ],
 
+            'expires_at' => [
+                'required',
+                'date',
+                'after_or_equal:today',
+                'before_or_equal:' . now()->addYears(50)->format('Y-m-d'),
+            ],
+
             'serial_prefix' => [
                 'nullable',
                 'string',
@@ -391,6 +398,11 @@ class BatchController extends Controller
 
             'product_id.required' => 'Debes seleccionar un producto.',
             'product_id.exists' => 'El producto seleccionado no existe.',
+
+            'expires_at.required' => 'La fecha de vencimiento es obligatoria.',
+            'expires_at.date' => 'La fecha de vencimiento no tiene un formato válido.',
+            'expires_at.after_or_equal' => 'La fecha de vencimiento no puede ser anterior a hoy.',
+            'expires_at.before_or_equal' => 'La fecha de vencimiento no puede superar los 50 años desde la fecha actual.',
 
             'serial_prefix.max' => 'El prefijo no puede superar los 10 caracteres.',
             'serial_prefix.regex' => 'El prefijo solo puede contener letras, números, guiones y guion bajo.',
@@ -477,6 +489,11 @@ class BatchController extends Controller
                         'serial_prefix' => $prefix,
 
                         'serial_number' => $number,
+
+                        /*
+                         * Fecha completa de vencimiento del cilindro.
+                         */
+                        'expires_at' => $data['expires_at'],
                     ]);
 
                     /*
@@ -501,8 +518,9 @@ class BatchController extends Controller
                         'performed_by_user_email' => $request->user()->email,
 
                         'notes' => sprintf(
-                            'Ingreso inicial desde lote %s. Tanque pendiente de revisión técnica.',
-                            $batch->batch_number
+                            'Ingreso inicial desde lote %s. Tanque pendiente de revisión técnica. Vencimiento: %s.',
+                            $batch->batch_number,
+                            \Carbon\Carbon::parse($data['expires_at'])->format('d/m/Y')
                         ),
                     ]);
                 }
