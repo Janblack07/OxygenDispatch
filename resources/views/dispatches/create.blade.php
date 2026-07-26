@@ -918,24 +918,24 @@
                                 >
                             </div>
 
-                            {{-- Documento --}}
-                            <div class="dispatch-col-4">
-                                <label
-                                    for="document_number"
-                                    class="dispatch-field-label"
-                                >
-                                    N.º documento
-                                </label>
 
-                                <input
-                                    type="text"
-                                    name="document_number"
-                                    id="document_number"
-                                    class="dispatch-control"
-                                    value="{{ old('document_number') }}"
-                                    placeholder="Ej. DOC-123"
-                                >
-                            </div>
+                            {{-- Documento automático --}}
+<div class="dispatch-col-4">
+    <label
+        for="document_number_preview"
+        class="dispatch-field-label"
+    >
+        Número de orden / nota de entrega
+    </label>
+
+    <input
+        type="text"
+        id="document_number_preview"
+        class="dispatch-control readonly"
+        value="Se tomará automáticamente de los tanques seleccionados"
+        readonly
+    >
+</div>
 
                             {{-- Placa --}}
                             <div class="dispatch-col-3">

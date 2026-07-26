@@ -182,6 +182,10 @@
             background: #f8fafc;
         }
 
+        .dispatch-show-info-item.wide {
+            grid-column: span 2;
+        }
+
         .dispatch-show-info-item.full {
             grid-column: 1 / -1;
         }
@@ -220,7 +224,7 @@
 
         .dispatch-show-table {
             width: 100%;
-            min-width: 760px;
+            min-width: 940px;
             border-collapse: collapse;
         }
 
@@ -237,6 +241,7 @@
             letter-spacing: .06em;
             text-align: left;
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .dispatch-show-table td {
@@ -258,11 +263,25 @@
         .dispatch-show-serial {
             color: #0f172a;
             font-weight: 700;
+            white-space: nowrap;
         }
 
         .dispatch-show-batch {
             color: #334155;
             font-weight: 600;
+        }
+
+        .dispatch-show-order {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 9px;
+            border: 1px solid #c7d2fe;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #4338ca;
+            font-size: 10px;
+            font-weight: 700;
+            white-space: nowrap;
         }
 
         .dispatch-show-empty {
@@ -275,6 +294,10 @@
         @media (max-width: 900px) {
             .dispatch-show-info-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .dispatch-show-info-item.wide {
+                grid-column: 1 / -1;
             }
         }
 
@@ -296,6 +319,7 @@
                 grid-template-columns: 1fr;
             }
 
+            .dispatch-show-info-item.wide,
             .dispatch-show-info-item.full {
                 grid-column: auto;
             }
@@ -347,13 +371,13 @@
                             </div>
                         </div>
 
-                        <div class="dispatch-show-info-item">
+                        <div class="dispatch-show-info-item wide">
                             <div class="dispatch-show-info-label">
-                                Documento
+                                Orden / nota de entrega
                             </div>
 
                             <div class="dispatch-show-info-value">
-                                {{ $dispatch->document_number ?? '—' }}
+                                {{ $dispatch->document_number ?: '—' }}
                             </div>
                         </div>
 
@@ -375,7 +399,7 @@
                             </div>
 
                             <div class="dispatch-show-info-value">
-                                {{ $dispatch->remission_plate ?? '—' }}
+                                {{ $dispatch->remission_plate ?: '—' }}
                             </div>
                         </div>
 
@@ -385,7 +409,7 @@
                             </div>
 
                             <div class="dispatch-show-info-value">
-                                {{ $dispatch->remission_number ?? '—' }}
+                                {{ $dispatch->remission_number ?: '—' }}
                             </div>
                         </div>
 
@@ -395,8 +419,8 @@
                             </div>
 
                             <div class="dispatch-show-info-value">
-                                {{ $dispatch->voucher_type ?? '—' }}
-                                {{ $dispatch->voucher_number ?? '' }}
+                                {{ $dispatch->voucher_type ?: '—' }}
+                                {{ $dispatch->voucher_number ?: '' }}
                             </div>
                         </div>
 
@@ -416,7 +440,7 @@
                             </div>
 
                             <div class="dispatch-show-info-value" style="font-weight: 500;">
-                                {{ $dispatch->notes ?? '—' }}
+                                {{ $dispatch->notes ?: '—' }}
                             </div>
                         </div>
 
@@ -432,7 +456,7 @@
                         </h3>
 
                         <p class="dispatch-show-section-subtitle">
-                            Unidades asociadas a este despacho.
+                            Unidades asociadas a este despacho con su orden o nota de entrega.
                         </p>
                     </div>
 
@@ -447,6 +471,7 @@
                         <thead>
                             <tr>
                                 <th>Lote</th>
+                                <th>Orden / nota</th>
                                 <th>Serial</th>
                                 <th>Gas</th>
                                 <th>Capacidad</th>
@@ -465,6 +490,16 @@
                                     </td>
 
                                     <td>
+                                        @if($t?->batch?->document_number)
+                                            <span class="dispatch-show-order">
+                                                {{ $t->batch->document_number }}
+                                            </span>
+                                        @else
+                                            —
+                                        @endif
+                                    </td>
+
+                                    <td>
                                         <span class="dispatch-show-serial">
                                             {{ $t?->serial ?? $ln->tank_unit_id }}
                                         </span>
@@ -480,7 +515,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4">
+                                    <td colspan="5">
                                         <div class="dispatch-show-empty">
                                             No hay líneas registradas en este despacho.
                                         </div>
