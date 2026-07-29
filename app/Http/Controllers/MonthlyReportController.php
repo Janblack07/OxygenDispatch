@@ -7,6 +7,7 @@ use App\Enums\MovementType;
 use App\Models\Dispatch;
 use App\Models\InventoryMovement;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +23,7 @@ class MonthlyReportController extends Controller
             ->whereYear('occurred_at', $year)
             ->whereMonth('occurred_at', $month)
             ->with([
-                'tankUnit:id,serial,gas_type_id,capacity_id,technical_status_id,sanitary_registry,product_id',
+                'tankUnit:id,serial,gas_type_id,capacity_id,technical_status_id,sanitary_registry,product_id,expires_at',
                 'tankUnit.gasType:id,name',
                 'tankUnit.capacity:id,name,m3',
                 'batch:id,batch_number,document_number',
@@ -37,8 +38,8 @@ class MonthlyReportController extends Controller
             ->with([
                 'client:id,name,document,entity_type',
                 'lines:id,dispatch_id,tank_unit_id',
-                'lines.tankUnit:id,serial,batch_id,gas_type_id,capacity_id',
-                'lines.tankUnit.batch:id,batch_number',
+                'lines.tankUnit:id,serial,batch_id,gas_type_id,capacity_id,expires_at',
+                'lines.tankUnit.batch:id,batch_number,document_number',
                 'lines.tankUnit.gasType:id,name',
                 'lines.tankUnit.capacity:id,name,m3',
             ])
@@ -65,7 +66,7 @@ class MonthlyReportController extends Controller
             ->whereYear('occurred_at', $year)
             ->whereMonth('occurred_at', $month)
             ->with([
-                'tankUnit:id,serial,gas_type_id,capacity_id,technical_status_id,sanitary_registry,product_id',
+                'tankUnit:id,serial,gas_type_id,capacity_id,technical_status_id,sanitary_registry,product_id,expires_at',
                 'tankUnit.gasType:id,name',
                 'tankUnit.capacity:id,name,m3',
                 'tankUnit.technicalStatus:id,name',
@@ -89,9 +90,16 @@ class MonthlyReportController extends Controller
             'logoBase64' => $this->resolveLogoForPdf(),
         ];
 
-        $pdf = Pdf::loadView('reports.monthly.pdf_entries', $data)->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('reports.monthly.pdf_entries', $data)
+            ->setPaper('a4', 'landscape');
 
-        return $pdf->download('reporte-entradas-' . $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '.pdf');
+        return $pdf->download(
+            'reporte-entradas-' .
+            $year .
+            '-' .
+            str_pad($month, 2, '0', STR_PAD_LEFT) .
+            '.pdf'
+        );
     }
 
     public function exitsPdf(Request $request)
@@ -105,8 +113,8 @@ class MonthlyReportController extends Controller
             ->with([
                 'client:id,name,document,entity_type',
                 'lines:id,dispatch_id,tank_unit_id',
-                'lines.tankUnit:id,serial,batch_id,gas_type_id,capacity_id',
-                'lines.tankUnit.batch:id,batch_number',
+                'lines.tankUnit:id,serial,batch_id,gas_type_id,capacity_id,expires_at',
+                'lines.tankUnit.batch:id,batch_number,document_number',
                 'lines.tankUnit.gasType:id,name',
                 'lines.tankUnit.capacity:id,name,m3',
             ])
@@ -143,12 +151,22 @@ class MonthlyReportController extends Controller
         $pdf = Pdf::loadView('reports.monthly.pdf_exits', $data)
             ->setPaper('a4', 'landscape');
 
-        return $pdf->download('reporte-salidas-' . $suffix . '-' . $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '.pdf');
+        return $pdf->download(
+            'reporte-salidas-' .
+            $suffix .
+            '-' .
+            $year .
+            '-' .
+            str_pad($month, 2, '0', STR_PAD_LEFT) .
+            '.pdf'
+        );
     }
 
     private function buildEntriesSummary(Collection $entries): array
     {
-        $totalM3 = $entries->sum(fn ($entry) => (float) ($entry->tankUnit?->capacity?->m3 ?? 0));
+        $totalM3 = $entries->sum(
+            fn ($entry) => (float) ($entry->tankUnit?->capacity?->m3 ?? 0)
+        );
 
         $byArea = $entries
             ->groupBy(fn ($entry) => $entry->to_area_id ?: 'sin-area')
@@ -159,7 +177,9 @@ class MonthlyReportController extends Controller
                     'label' => $first?->toArea?->name ?? 'Sin área destino',
                     'total_movements' => $items->count(),
                     'total_tanks' => $items->count(),
-                    'total_m3' => $items->sum(fn ($entry) => (float) ($entry->tankUnit?->capacity?->m3 ?? 0)),
+                    'total_m3' => $items->sum(
+                        fn ($entry) => (float) ($entry->tankUnit?->capacity?->m3 ?? 0)
+                    ),
                 ];
             })
             ->sortByDesc('total_m3')
@@ -173,7 +193,9 @@ class MonthlyReportController extends Controller
                 return (object) [
                     'label' => $first?->tankUnit?->gasType?->name ?? 'Sin tipo de gas',
                     'total_tanks' => $items->count(),
-                    'total_m3' => $items->sum(fn ($entry) => (float) ($entry->tankUnit?->capacity?->m3 ?? 0)),
+                    'total_m3' => $items->sum(
+                        fn ($entry) => (float) ($entry->tankUnit?->capacity?->m3 ?? 0)
+                    ),
                 ];
             })
             ->sortByDesc('total_m3')
@@ -187,13 +209,21 @@ class MonthlyReportController extends Controller
                 return (object) [
                     'label' => $first?->tankUnit?->capacity?->name ?? 'Sin capacidad',
                     'total_tanks' => $items->count(),
-                    'total_m3' => $items->sum(fn ($entry) => (float) ($entry->tankUnit?->capacity?->m3 ?? 0)),
+                    'total_m3' => $items->sum(
+                        fn ($entry) => (float) ($entry->tankUnit?->capacity?->m3 ?? 0)
+                    ),
                 ];
             })
             ->sortByDesc('total_m3')
             ->values();
 
         $mainArea = $byArea->first();
+
+        $tanks = $entries
+            ->pluck('tankUnit')
+            ->filter()
+            ->unique('id')
+            ->values();
 
         return [
             'total_movements' => $entries->count(),
@@ -205,19 +235,30 @@ class MonthlyReportController extends Controller
             'by_area' => $byArea,
             'by_gas' => $byGas,
             'by_capacity' => $byCapacity,
+            'expiration' => $this->buildExpirationSummaryFromTanks($tanks),
         ];
     }
 
     private function buildExitsSummary(Collection $dispatches, ?EntityType $entityEnum = null): array
     {
-        $allLines = $dispatches->flatMap(fn ($dispatch) => $dispatch->lines);
-        $totalM3 = $allLines->sum(fn ($line) => (float) ($line->tankUnit?->capacity?->m3 ?? 0));
+        $allLines = $dispatches->flatMap(
+            fn ($dispatch) => $dispatch->lines
+        );
+
+        $totalM3 = $allLines->sum(
+            fn ($line) => (float) ($line->tankUnit?->capacity?->m3 ?? 0)
+        );
 
         $byEntityType = $dispatches
             ->groupBy(fn ($dispatch) => (string) $this->resolveDispatchEntityTypeValue($dispatch))
             ->map(function (Collection $groupedDispatches, string $entityValue) use ($totalM3) {
-                $groupLines = $groupedDispatches->flatMap(fn ($dispatch) => $dispatch->lines);
-                $groupM3 = (float) $groupLines->sum(fn ($line) => (float) ($line->tankUnit?->capacity?->m3 ?? 0));
+                $groupLines = $groupedDispatches->flatMap(
+                    fn ($dispatch) => $dispatch->lines
+                );
+
+                $groupM3 = (float) $groupLines->sum(
+                    fn ($line) => (float) ($line->tankUnit?->capacity?->m3 ?? 0)
+                );
 
                 return (object) [
                     'entity_type' => $entityValue,
@@ -231,6 +272,12 @@ class MonthlyReportController extends Controller
             ->sortByDesc('total_m3')
             ->values();
 
+        $tanks = $allLines
+            ->pluck('tankUnit')
+            ->filter()
+            ->unique('id')
+            ->values();
+
         return [
             'total_dispatches' => $dispatches->count(),
             'total_tanks' => $allLines->count(),
@@ -238,6 +285,48 @@ class MonthlyReportController extends Controller
             'total_clients' => $dispatches->pluck('client_id')->filter()->unique()->count(),
             'filter_label' => $entityEnum?->label() ?? 'General',
             'by_entity_type' => $byEntityType,
+            'expiration' => $this->buildExpirationSummaryFromTanks($tanks),
+        ];
+    }
+
+    private function buildExpirationSummaryFromTanks(Collection $tanks): array
+    {
+        $today = now()->startOfDay();
+        $warningLimit = now()->addMonths(6)->endOfDay();
+
+        $expired = 0;
+        $warning = 0;
+        $valid = 0;
+        $withoutDate = 0;
+
+        foreach ($tanks as $tank) {
+            if (! $tank?->expires_at) {
+                $withoutDate++;
+                continue;
+            }
+
+            $expiresAt = $tank->expires_at instanceof Carbon
+                ? $tank->expires_at->copy()
+                : Carbon::parse($tank->expires_at);
+
+            if ($expiresAt->lt($today)) {
+                $expired++;
+                continue;
+            }
+
+            if ($expiresAt->lte($warningLimit)) {
+                $warning++;
+                continue;
+            }
+
+            $valid++;
+        }
+
+        return [
+            'valid' => $valid,
+            'warning' => $warning,
+            'expired' => $expired,
+            'without_date' => $withoutDate,
         ];
     }
 
@@ -266,25 +355,29 @@ class MonthlyReportController extends Controller
 
         $month = max(1, min(12, $month));
 
-        return [$month, $year];
+        return [
+            $month,
+            $year,
+        ];
     }
+
     private function resolveLogoForPdf(): ?string
-{
-    $logoUrl = 'https://res.cloudinary.com/dv2gulc60/image/upload/v1772404076/OxigenDispatch/Logo_Distribuidora_tmn7yp.png';
+    {
+        $logoUrl = 'https://res.cloudinary.com/dv2gulc60/image/upload/v1772404076/OxigenDispatch/Logo_Distribuidora_tmn7yp.png';
 
-    try {
-        $image = @file_get_contents($logoUrl);
+        try {
+            $image = @file_get_contents($logoUrl);
 
-        if ($image === false) {
+            if ($image === false) {
+                return null;
+            }
+
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $mime = $finfo->buffer($image) ?: 'image/png';
+
+            return 'data:' . $mime . ';base64,' . base64_encode($image);
+        } catch (\Throwable $e) {
             return null;
         }
-
-        $finfo = new \finfo(FILEINFO_MIME_TYPE);
-        $mime = $finfo->buffer($image) ?: 'image/png';
-
-        return 'data:' . $mime . ';base64,' . base64_encode($image);
-    } catch (\Throwable $e) {
-        return null;
     }
-}
 }
