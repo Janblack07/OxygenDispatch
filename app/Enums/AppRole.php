@@ -8,6 +8,7 @@ enum AppRole: string
     case ADMINISTRADOR = 'ADMINISTRADOR';
     case ENCARGADO = 'ENCARGADO';
     case TECNICO = 'TECNICO';
+    case QUIMICO = 'QUIMICO';
 
     public static function values(): array
     {
@@ -24,6 +25,7 @@ enum AppRole: string
             self::ADMINISTRADOR => 'Administrador',
             self::ENCARGADO => 'Encargado',
             self::TECNICO => 'Técnico',
+            self::QUIMICO => 'Químico',
         };
     }
 }
