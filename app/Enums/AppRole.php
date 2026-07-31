@@ -7,9 +7,23 @@ enum AppRole: string
     case PROGRAMADOR = 'PROGRAMADOR';
     case ADMINISTRADOR = 'ADMINISTRADOR';
     case ENCARGADO = 'ENCARGADO';
+    case TECNICO = 'TECNICO';
 
     public static function values(): array
     {
-        return array_map(fn($e) => $e->value, self::cases());
+        return array_map(
+            fn ($role) => $role->value,
+            self::cases()
+        );
+    }
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::PROGRAMADOR => 'Programador',
+            self::ADMINISTRADOR => 'Administrador',
+            self::ENCARGADO => 'Encargado',
+            self::TECNICO => 'Técnico',
+        };
     }
 }
