@@ -47,7 +47,7 @@ class DispatchController extends Controller
                 'warehouseArea',
                 'technicalStatus',
             ])
-            ->where('status', 1)
+            ->dispatchable()
             ->when($request->filled('batch'), function ($query) use ($request) {
                 $batch = trim((string) $request->input('batch'));
 
@@ -352,8 +352,8 @@ class DispatchController extends Controller
             ->whereIn('id', $tankIds)
             ->get()
             ->pluck('batch.document_number')
-            ->filter(fn ($documentNumber) => filled($documentNumber))
-            ->map(fn ($documentNumber) => trim((string) $documentNumber))
+            ->filter(fn($documentNumber) => filled($documentNumber))
+            ->map(fn($documentNumber) => trim((string) $documentNumber))
             ->filter()
             ->unique()
             ->values();
@@ -373,8 +373,8 @@ class DispatchController extends Controller
 
         $documentNumbers = $dispatch->lines
             ->pluck('tankUnit.batch.document_number')
-            ->filter(fn ($documentNumber) => filled($documentNumber))
-            ->map(fn ($documentNumber) => trim((string) $documentNumber))
+            ->filter(fn($documentNumber) => filled($documentNumber))
+            ->map(fn($documentNumber) => trim((string) $documentNumber))
             ->filter()
             ->unique()
             ->values();
