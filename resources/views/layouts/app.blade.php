@@ -23,6 +23,22 @@
         href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap"
         rel="stylesheet"
     >
+   <link
+    rel="icon"
+    type="image/png"
+    href="https://res.cloudinary.com/dv2gulc60/image/upload/v1772404076/OxigenDispatch/Logo_Distribuidora_tmn7yp.png"
+>
+
+<link
+    rel="shortcut icon"
+    type="image/png"
+    href="https://res.cloudinary.com/dv2gulc60/image/upload/v1772404076/OxigenDispatch/Logo_Distribuidora_tmn7yp.png"
+>
+
+<link
+    rel="apple-touch-icon"
+    href="https://res.cloudinary.com/dv2gulc60/image/upload/v1772404076/OxigenDispatch/Logo_Distribuidora_tmn7yp.png"
+>
 
     {{-- Assets --}}
     @vite([

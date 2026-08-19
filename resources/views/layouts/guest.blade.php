@@ -13,7 +13,22 @@
         name="csrf-token"
         content="{{ csrf_token() }}"
     >
+<link
+    rel="icon"
+    type="image/png"
+    href="https://res.cloudinary.com/dv2gulc60/image/upload/v1772404076/OxigenDispatch/Logo_Distribuidora_tmn7yp.png"
+>
 
+<link
+    rel="shortcut icon"
+    type="image/png"
+    href="https://res.cloudinary.com/dv2gulc60/image/upload/v1772404076/OxigenDispatch/Logo_Distribuidora_tmn7yp.png"
+>
+
+<link
+    rel="apple-touch-icon"
+    href="https://res.cloudinary.com/dv2gulc60/image/upload/v1772404076/OxigenDispatch/Logo_Distribuidora_tmn7yp.png"
+>
     <title>
         {{ config('app.name', 'Oxygen Dispatch') }}
     </title>
