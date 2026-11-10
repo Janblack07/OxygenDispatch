@@ -50,7 +50,7 @@
 
                 @if($technicalReception->signed_pdf_path)
                     <a
-                        href="{{ asset('storage/' . $technicalReception->signed_pdf_path) }}"
+                        href="{{ route('technical-receptions.signed-pdf', $technicalReception) }}"
                         target="_blank"
                         class="technical-show-button signed"
                     >
@@ -722,7 +722,7 @@
                             </div>
 
                             <a
-                                href="{{ asset('storage/' . $technicalReception->signed_pdf_path) }}"
+                                href="{{ route('technical-receptions.signed-pdf', $technicalReception) }}"
                                 target="_blank"
                                 class="technical-signed-view-button"
                             >

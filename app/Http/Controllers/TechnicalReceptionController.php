@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class TechnicalReceptionController extends Controller
 {
@@ -409,4 +411,52 @@ class TechnicalReceptionController extends Controller
             ->route('technical-receptions.show', $technicalReception)
             ->with('success', 'PDF firmado subido correctamente.');
     }
+  public function viewSignedPdf(
+    TechnicalReception $technicalReception
+): BinaryFileResponse {
+    $path = $technicalReception->signed_pdf_path;
+
+    if (blank($path)) {
+        abort(
+            404,
+            'Esta recepción técnica no tiene un PDF firmado asociado.'
+        );
+    }
+
+    $disk = Storage::disk('public');
+
+    if (! $disk->exists($path)) {
+        abort(
+            404,
+            'El PDF firmado no se encuentra disponible en el almacenamiento.'
+        );
+    }
+
+    $absolutePath = $disk->path($path);
+
+    if (! is_file($absolutePath)) {
+        abort(
+            404,
+            'El archivo físico del PDF firmado no fue encontrado.'
+        );
+    }
+
+    $fileName = basename($path);
+
+    $response = new BinaryFileResponse(
+        $absolutePath,
+        200,
+        [
+            'Content-Type' => 'application/pdf',
+            'X-Content-Type-Options' => 'nosniff',
+        ]
+    );
+
+    $response->setContentDisposition(
+        ResponseHeaderBag::DISPOSITION_INLINE,
+        $fileName
+    );
+
+    return $response;
+}
 }
