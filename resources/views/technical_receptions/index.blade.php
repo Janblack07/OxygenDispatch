@@ -76,7 +76,7 @@
             box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
         }
 
-        .reception-card + .reception-card {
+        .reception-card+.reception-card {
             margin-top: 18px;
         }
 
@@ -416,13 +416,13 @@
     <div class="reception-page">
         <div class="reception-container">
 
-            @if(session('success'))
+            @if (session('success'))
                 <div class="reception-alert success">
                     {{ session('success') }}
                 </div>
             @endif
 
-            @if(session('error'))
+            @if (session('error'))
                 <div class="reception-alert error">
                     {{ session('error') }}
                 </div>
@@ -443,89 +443,52 @@
                 </div>
 
                 <div class="reception-card-body">
-                    <form
-                        method="GET"
-                        action="{{ route('technical-receptions.index') }}"
-                    >
+                    <form method="GET" action="{{ route('technical-receptions.index') }}">
                         <div class="reception-filter-grid">
 
                             <div>
-                                <label
-                                    for="q"
-                                    class="reception-field-label"
-                                >
+                                <label for="q" class="reception-field-label">
                                     Buscar nota de entrega
                                 </label>
 
-                                <input
-                                    type="text"
-                                    id="q"
-                                    name="q"
-                                    value="{{ request('q') }}"
-                                    placeholder="Orden, proveedor, factura o lote"
-                                    class="reception-control"
-                                >
+                                <input type="text" id="q" name="q" value="{{ request('q') }}"
+                                    placeholder="Orden, proveedor, factura o lote" class="reception-control">
                             </div>
 
                             <div>
-                                <label
-                                    for="final_result"
-                                    class="reception-field-label"
-                                >
+                                <label for="final_result" class="reception-field-label">
                                     Estado de ficha
                                 </label>
 
-                                <select
-                                    id="final_result"
-                                    name="final_result"
-                                    class="reception-control"
-                                >
+                                <select id="final_result" name="final_result" class="reception-control">
                                     <option value="">
                                         Todas
                                     </option>
 
-                                    <option
-                                        value="sin_ficha"
-                                        @selected(request('final_result') === 'sin_ficha')
-                                    >
+                                    <option value="sin_ficha" @selected(request('final_result') === 'sin_ficha')>
                                         Sin ficha
                                     </option>
 
-                                    <option
-                                        value="pendiente"
-                                        @selected(request('final_result') === 'pendiente')
-                                    >
+                                    <option value="pendiente" @selected(request('final_result') === 'pendiente')>
                                         Pendiente
                                     </option>
 
-                                    <option
-                                        value="aprobado"
-                                        @selected(request('final_result') === 'aprobado')
-                                    >
+                                    <option value="aprobado" @selected(request('final_result') === 'aprobado')>
                                         Aprobado
                                     </option>
 
-                                    <option
-                                        value="rechazado"
-                                        @selected(request('final_result') === 'rechazado')
-                                    >
+                                    <option value="rechazado" @selected(request('final_result') === 'rechazado')>
                                         Rechazado
                                     </option>
                                 </select>
                             </div>
 
                             <div class="reception-filter-actions">
-                                <button
-                                    type="submit"
-                                    class="reception-filter-button"
-                                >
+                                <button type="submit" class="reception-filter-button">
                                     Filtrar
                                 </button>
 
-                                <a
-                                    href="{{ route('technical-receptions.index') }}"
-                                    class="reception-clear-button"
-                                >
+                                <a href="{{ route('technical-receptions.index') }}" class="reception-clear-button">
                                     Limpiar
                                 </a>
                             </div>
@@ -571,7 +534,7 @@
                         <tbody>
                             @forelse($documents as $document)
                                 @php
-                                    $statusStyle = match($document->final_result) {
+                                    $statusStyle = match ($document->final_result) {
                                         'aprobado' => '
                                             border: 1px solid #a7f3d0;
                                             background: #ecfdf5;
@@ -612,9 +575,7 @@
                                     </td>
 
                                     <td>
-                                        {{ $document->received_at
-                                            ? \Carbon\Carbon::parse($document->received_at)->format('Y-m-d')
-                                            : '—' }}
+                                        {{ $document->received_at ? \Carbon\Carbon::parse($document->received_at)->format('Y-m-d') : '—' }}
                                     </td>
 
                                     <td style="text-align: center;">
@@ -630,22 +591,17 @@
                                     </td>
 
                                     <td style="text-align: center;">
-                                        @if($document->technical_reception_id)
-                                            <span
-                                                class="reception-status-badge"
-                                                style="{{ $statusStyle }}"
-                                            >
+                                        @if ($document->technical_reception_id)
+                                            <span class="reception-status-badge" style="{{ $statusStyle }}">
                                                 {{ ucfirst($document->final_result ?? 'pendiente') }}
                                             </span>
                                         @else
-                                            <span
-                                                class="reception-status-badge"
+                                            <span class="reception-status-badge"
                                                 style="
                                                     border: 1px solid #e2e8f0;
                                                     background: #f8fafc;
                                                     color: #64748b;
-                                                "
-                                            >
+                                                ">
                                                 Sin ficha
                                             </span>
                                         @endif
@@ -653,51 +609,40 @@
 
                                     <td>
                                         <div class="reception-actions">
-                                            @if($document->technical_reception_id)
-                                                <a
-                                                    href="{{ route('technical-receptions.show', $document->technical_reception_id) }}"
-                                                    class="reception-action-button view"
-                                                >
+                                            @if ($document->technical_reception_id)
+                                                <a href="{{ route('technical-receptions.show', $document->technical_reception_id) }}"
+                                                    class="reception-action-button view">
                                                     Ver
                                                 </a>
 
-                                                <a
-                                                    href="{{ route('technical-receptions.edit', $document->technical_reception_id) }}"
-                                                    class="reception-action-button checklist"
-                                                >
+                                                <a href="{{ route('technical-receptions.edit', $document->technical_reception_id) }}"
+                                                    class="reception-action-button checklist">
                                                     Checklist
                                                 </a>
 
-                                                <a
-                                                    href="{{ route('technical-receptions.pdf', $document->technical_reception_id) }}"
-                                                    target="_blank"
-                                                    class="reception-action-button pdf"
-                                                >
+                                                <a href="{{ route('technical-receptions.pdf', $document->technical_reception_id) }}"
+                                                    target="_blank" class="reception-action-button pdf">
                                                     PDF
                                                 </a>
 
                                                 @php
                                                     $signedPath = \App\Models\TechnicalReception::find(
-                                                        $document->technical_reception_id
+                                                        $document->technical_reception_id,
                                                     )?->signed_pdf_path;
                                                 @endphp
 
-                                                @if($signedPath)
-                                                    <a
-                                                        href="{{ route('technical-receptions.signed-pdf', $technicalReception) }}"
-                                                        target="_blank"
-                                                        class="reception-action-button signed"
-                                                    >
+                                                @if ($signedPath)
+                                                    <a href="{{ route('technical-receptions.signed-pdf', $document->technical_reception_id) }}"
+                                                        target="_blank" rel="noopener noreferrer"
+                                                        class="reception-action-button signed">
                                                         Firmado
                                                     </a>
                                                 @endif
                                             @else
-                                                <a
-                                                    href="{{ route('technical-receptions.create', [
-                                                        'document_number' => $document->document_number
-                                                    ]) }}"
-                                                    class="reception-action-button create"
-                                                >
+                                                <a href="{{ route('technical-receptions.create', [
+                                                    'document_number' => $document->document_number,
+                                                ]) }}"
+                                                    class="reception-action-button create">
                                                     Crear checklist
                                                 </a>
                                             @endif
@@ -710,18 +655,10 @@
                                     <td colspan="8">
                                         <div class="reception-empty-state">
                                             <div class="reception-empty-icon">
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 24 24"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    stroke-width="1.8"
-                                                >
-                                                    <path
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                                    />
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                                 </svg>
                                             </div>
 
@@ -740,7 +677,7 @@
                     </table>
                 </div>
 
-                @if($documents->hasPages())
+                @if ($documents->hasPages())
                     <div class="reception-pagination">
                         {{ $documents->links() }}
                     </div>
