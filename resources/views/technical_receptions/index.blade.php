@@ -684,7 +684,7 @@
 
                                                 @if($signedPath)
                                                     <a
-                                                        href="{{ asset('storage/' . $signedPath) }}"
+                                                        href="{{ route('technical-receptions.signed-pdf', $technicalReception) }}""
                                                         target="_blank"
                                                         class="reception-action-button signed"
                                                     >
